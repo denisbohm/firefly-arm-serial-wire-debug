@@ -1,6 +1,6 @@
 //
 //  FDFireflyFlash.h
-//  FireflyProduction
+//  ARMSerialWireDebug
 //
 //  Created by Denis Bohm on 7/22/13.
 //  Copyright (c) 2013 Firefly Design. All rights reserved.

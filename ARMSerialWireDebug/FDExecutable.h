@@ -1,6 +1,6 @@
 //
 //  FDExecutable.h
-//  Sync
+//  ARMSerialWireDebug
 //
 //  Created by Denis Bohm on 4/26/13.
 //  Copyright (c) 2013 Firefly Design. All rights reserved.

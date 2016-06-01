@@ -1,6 +1,6 @@
 //
 //  FDUSBDevice.h
-//  program
+//  ARMSerialWireDebug
 //
 //  Created by Denis Bohm on 1/7/13.
 //  Copyright (c) 2013 Firefly Design. All rights reserved.
