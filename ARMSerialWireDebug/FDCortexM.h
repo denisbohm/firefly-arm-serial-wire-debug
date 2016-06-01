@@ -64,4 +64,10 @@
 - (BOOL)run:(UInt32)pc r0:(uint32_t)r0 timeout:(NSTimeInterval)timeout resultR0:(nonnull UInt32 *)resultR0 error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)run:(UInt32)pc timeout:(NSTimeInterval)timeout resultR0:(nonnull UInt32 *)resultR0 error:(NSError * _Nullable * _Nullable)error;
 
+- (BOOL)run:(UInt32)pc r0:(uint32_t)r0 r1:(uint32_t)r1 r2:(uint32_t)r2 r3:(uint32_t)r3 timeout:(NSTimeInterval)timeout error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)run:(UInt32)pc r0:(uint32_t)r0 r1:(uint32_t)r1 r2:(uint32_t)r2 timeout:(NSTimeInterval)timeout error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)run:(UInt32)pc r0:(uint32_t)r0 r1:(uint32_t)r1 timeout:(NSTimeInterval)timeout error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)run:(UInt32)pc r0:(uint32_t)r0 timeout:(NSTimeInterval)timeout error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)run:(UInt32)pc timeout:(NSTimeInterval)timeout error:(NSError * _Nullable * _Nullable)error;
+
 @end

@@ -264,4 +264,33 @@
     return [self run:pc r0:0 r1:0 r2:0 r3:0 timeout:timeout resultR0:resultR0 error:error];
 }
 
+- (BOOL)run:(UInt32)pc r0:(uint32_t)r0 r1:(uint32_t)r1 r2:(uint32_t)r2 r3:(uint32_t)r3 timeout:(NSTimeInterval)timeout error:(NSError **)error
+{
+    if (![self start:pc r0:r0 r1:r1 r2:r2 r3:r3 error:error]) {
+        return NO;
+    }
+    UInt32 resultR0;
+    return [self waitForHalt:timeout resultR0:&resultR0 error:error];
+}
+
+- (BOOL)run:(UInt32)pc r0:(uint32_t)r0 r1:(uint32_t)r1 r2:(uint32_t)r2 timeout:(NSTimeInterval)timeout error:(NSError **)error
+{
+    return [self run:pc r0:r0 r1:r1 r2:r2 r3:0 timeout:timeout error:error];
+}
+
+- (BOOL)run:(UInt32)pc r0:(uint32_t)r0 r1:(uint32_t)r1 timeout:(NSTimeInterval)timeout error:(NSError **)error
+{
+    return [self run:pc r0:r0 r1:r1 r2:0 r3:0 timeout:timeout error:error];
+}
+
+- (BOOL)run:(UInt32)pc r0:(uint32_t)r0 timeout:(NSTimeInterval)timeout error:(NSError **)error
+{
+    return [self run:pc r0:r0 r1:0 r2:0 r3:0 timeout:timeout error:error];
+}
+
+- (BOOL)run:(UInt32)pc timeout:(NSTimeInterval)timeout error:(NSError **)error
+{
+    return [self run:pc r0:0 r1:0 r2:0 r3:0 timeout:timeout error:error];
+}
+
 @end
