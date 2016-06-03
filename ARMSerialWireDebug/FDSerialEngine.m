@@ -35,7 +35,7 @@
 - (id)init
 {
     if (self = [super init]) {
-        _timeout = 0.0;
+        _timeout = 0.5;
         _readPipe = 1;
         _writePipe = 2;
         _writeData = [NSMutableData data];
@@ -185,7 +185,7 @@
         NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:_timeout];
         if (![_readCondition waitUntilDate:deadline]) {
             [_readCondition unlock];
-            FDErrorReturn(error, @{@"detail": @"USB read timeout"});
+            FDErrorReturn(error, @{@"reason": @"USB read timeout"});
             return nil;
         }
         data = self.readData;

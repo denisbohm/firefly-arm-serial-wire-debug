@@ -26,4 +26,15 @@ BOOL FDErrorCreate(NSError **error, const char *file, int line, NSString *classN
 
 @implementation FDError
 
++ (BOOL)checkThreadIsCancelled:(NSError **)error
+{
+    if (NSThread.currentThread.isCancelled) {
+        if (error != nil) {
+            *error = [NSError errorWithDomain:@"ARMSerialWireDebug.FDError" code:1 userInfo:@{@"reason": @"Cancelled"}];
+        }
+        return NO;
+    }
+    return YES;
+}
+
 @end

@@ -14,4 +14,6 @@ BOOL FDErrorCreate(NSError **error, const char *file, int line, NSString *classN
 
 @interface FDError : NSObject
 
++ (BOOL)checkThreadIsCancelled:(NSError **)error;
+
 @end

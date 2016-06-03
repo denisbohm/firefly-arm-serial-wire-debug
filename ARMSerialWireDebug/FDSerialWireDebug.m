@@ -440,21 +440,22 @@ typedef enum {
 - (BOOL)readPort:(SWDPort)port registerOffset:(UInt8)registerOffset value:(UInt32 *)value error:(NSError **)error
 {
 //    NSLog(@"read  %@ %02x", port == SWDDebugPort ? @"dp" : @"ap", registerOffset);
+    NSError *deepError;
     UInt8 request = [self encodeRequestPort:port direction:SWDReadDirection address:registerOffset];
     for (NSUInteger retry = 0; retry < _ackWaitRetryCount; ++retry) {
         SWDAck ack;
-        if (![self request:request ack:&ack error:nil]) {
+        if (![self request:request ack:&ack error:&deepError]) {
             continue;
         }
         if (_overrunDetectionEnabled) {
-            if (![self readUInt32:value error:nil]) {
+            if (![self readUInt32:value error:&deepError]) {
                 continue;
             }
             [self turnToWriteAndSkip];
         }
         if (ack == SWDOKAck) {
             if (!_overrunDetectionEnabled) {
-                if (![self readUInt32:value error:nil]) {
+                if (![self readUInt32:value error:&deepError]) {
                     continue;
                 }
                 [self turnToWriteAndSkip];
@@ -470,16 +471,20 @@ typedef enum {
             return FDErrorReturn(error, @{@"reason": reason});
         }
     }
-    return FDErrorReturn(error, @{@"reason": @"too many retries"});
+    if (error != nil) {
+        *error = deepError;
+    }
+    return NO;
 }
 
 - (BOOL)writePort:(SWDPort)port registerOffset:(UInt8)registerOffset value:(UInt32)value error:(NSError **)error
 {
 //    NSLog(@"write %@ %02x = %08x", port == SWDDebugPort ? @"dp" : @"ap", registerOffset, value);
+    NSError *deepError;
     UInt8 request = [self encodeRequestPort:port direction:SWDWriteDirection address:registerOffset];
     for (NSUInteger retry = 0; retry < _ackWaitRetryCount; ++retry) {
         SWDAck ack;
-        if (![self request:request ack:&ack error:nil]) {
+        if (![self request:request ack:&ack error:&deepError]) {
             continue;
         }
         [self turnToWriteAndSkip];
@@ -498,7 +503,10 @@ typedef enum {
             return FDErrorReturn(error, @{@"reason": reason});
         }
     }
-    return FDErrorReturn(error, @{@"reason": @"too many retries"});
+    if (error != nil) {
+        *error = deepError;
+    }
+    return NO;
 }
 
 - (BOOL)readDebugPort:(UInt8)registerOffset value:(UInt32 *)value error:(NSError **)error

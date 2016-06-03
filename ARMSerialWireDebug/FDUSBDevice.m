@@ -131,7 +131,7 @@
             (void) (*interface)->Release(interface);
             break;
         }
-        CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes); // kCFRunLoopDefaultMode);
+        CFRunLoopAddSource(CFRunLoopGetMain(), runLoopSource, kCFRunLoopCommonModes); // kCFRunLoopDefaultMode);
         
         break;
     }
@@ -187,17 +187,20 @@
     self.deviceInterface = NULL;
 }
 
-- (BOOL)checkIfOpen:(NSError **)error
+- (BOOL)checkPreconditions:(NSError **)error
 {
     if (_interface == nil) {
         return FDErrorReturn(error, nil);
+    }
+    if (![FDError checkThreadIsCancelled:error]) {
+        return NO;
     }
     return YES;
 }
 
 - (BOOL)request:(UInt8)request value:(UInt16)value error:(NSError **)error
 {
-    if (![self checkIfOpen:error]) {
+    if (![self checkPreconditions:error]) {
         return NO;
     }
     IOUSBDevRequest devRequest;
@@ -215,7 +218,7 @@
 
 - (BOOL)writePipe:(UInt8)pipe data:(NSData *)data error:(NSError **)error
 {
-    if (![self checkIfOpen:error]) {
+    if (![self checkPreconditions:error]) {
         return NO;
     }
     kern_return_t kernReturn = (*_interface)->WritePipe(_interface, pipe, (void *)data.bytes, (UInt32)data.length);
@@ -228,7 +231,7 @@
 - (void)WritePipeAsyncCallback:(IOReturn)result arg0:(void *)arg0
 {
     NSError *error = nil;
-    if ([self checkIfOpen:&error]) {
+    if ([self checkPreconditions:&error]) {
         if (result != kIOReturnSuccess) {
             FDErrorReturn(&error, @{@"IOReturn": @(result)});
         }
@@ -247,7 +250,7 @@ void WritePipeAsyncCallback(void *refCon, IOReturn result, void *arg0)
 
 - (BOOL)writePipeAsync:(UInt8)pipe data:(NSData *)data error:(NSError **)error
 {
-    if (![self checkIfOpen:error]) {
+    if (![self checkPreconditions:error]) {
         return NO;
     }
     _writeData = [NSData dataWithData:data];
@@ -261,7 +264,7 @@ void WritePipeAsyncCallback(void *refCon, IOReturn result, void *arg0)
 
 - (NSData *)readPipe:(UInt8)pipe length:(UInt32)length error:(NSError **)error
 {
-    if (![self checkIfOpen:error]) {
+    if (![self checkPreconditions:error]) {
         return NO;
     }
     NSMutableData *data = [NSMutableData dataWithLength:length];
@@ -278,7 +281,7 @@ void WritePipeAsyncCallback(void *refCon, IOReturn result, void *arg0)
 - (void)ReadPipeAsyncCallback:(IOReturn)result arg0:(void *)arg0
 {
     NSError *error = nil;
-    if ([self checkIfOpen:&error]) {
+    if ([self checkPreconditions:&error]) {
         if (result != kIOReturnSuccess) {
             FDErrorReturn(&error, @{@"IOReturn": @(result)});
         }
@@ -299,11 +302,11 @@ void ReadPipeAsyncCallback(void *refCon, IOReturn result, void *arg0)
 
 - (BOOL)readPipeAsync:(UInt8)pipe length:(UInt32)length error:(NSError **)error
 {
-    if (![self checkIfOpen:error]) {
+    if (![self checkPreconditions:error]) {
         return NO;
     }
     if (_readData != nil) {
-        return FDErrorReturn(error, @{@"detail": @"previous read is still pending"});
+        return FDErrorReturn(error, @{@"reason": @"previous read is still pending"});
     }
     _readData = [NSMutableData dataWithLength:length];
     IOReturn result = (*_interface)->ReadPipeAsync(_interface, pipe, (void *)_readData.bytes, length, ReadPipeAsyncCallback, (__bridge void *)self);
