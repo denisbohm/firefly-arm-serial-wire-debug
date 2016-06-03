@@ -207,14 +207,25 @@
     if (![self write:error]) {
         return nil;
     }
-    
+
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:2.0];
     NSMutableData *data = [NSMutableData dataWithCapacity:2 + length];
     while (data.length < length) {
         NSData *subdata = [self read:error];
         if (subdata == nil) {
             return nil;
         }
+        /*
+        if (subdata.length == 0) {
+            FDErrorReturn(error, @{@"reason": @"insufficient data available"});
+            return nil;
+        }
+         */
         [data appendData:subdata];
+        NSDate *now = [NSDate date];
+        if ([deadline compare:now] == NSOrderedAscending) {
+            FDErrorReturn(error, @{@"reason": @"timeout"});
+        }
     }
     return data;
 }

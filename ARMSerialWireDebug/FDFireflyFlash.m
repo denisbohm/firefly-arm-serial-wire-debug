@@ -30,7 +30,7 @@
     Class class = NSClassFromString(className);
     FDFireflyFlash *fireflyFlash = [[class alloc] init];
     if (fireflyFlash == nil) {
-        NSString *reason = @"FDFireflyFlash: processor unknown";
+        NSString *reason = [NSString stringWithFormat:@"FDFireflyFlash: processor unknown: '%@'", processor];
         FDErrorReturn(error, @{@"reason": reason});
         return nil;
     }
