@@ -47,6 +47,7 @@
 @interface FDUSBMonitor ()
 
 @property IONotificationPortRef notificationPort;
+@property io_iterator_t ioIterator;
 @property NSMutableArray *usbDevices;
 @property NSThread *thread;
 
@@ -218,18 +219,26 @@ static const char *getServiceMatcher(void) {
     CFRunLoopAddSource(runLoopRef, runLoopSourceRef, kCFRunLoopCommonModes); // kCFRunLoopDefaultMode);
     
     CFDictionaryRef matchingDictionary = IOServiceMatching(getServiceMatcher());
-    io_iterator_t gRawAddedIter;
     kernReturn = IOServiceAddMatchingNotification(
                                                   _notificationPort,
                                                   kIOFirstMatchNotification,
                                                   matchingDictionary,
                                                   USBDevicesAdded, (__bridge void *)self,
-                                                  &gRawAddedIter
+                                                  &_ioIterator
                                                   );
     if (kernReturn != kIOReturnSuccess) {
         FDLog(@"failure IOServiceAddMatchingNotification: %08x", kernReturn);
     }
-    [self USBDevicesAdded:gRawAddedIter];
+    [self USBDevicesAdded:_ioIterator];
+}
+
+- (void)USBStop
+{
+    IOObjectRelease(_ioIterator);
+    _ioIterator = 0;
+
+    IONotificationPortDestroy(_notificationPort);
+    _notificationPort = 0;
 }
 
 - (FDUSBDevice *)deviceWithLocation:(NSObject *)location
@@ -247,15 +256,37 @@ static const char *getServiceMatcher(void) {
     [self USBStart];
     
     NSRunLoop* runLoop = [NSRunLoop currentRunLoop];
-    while (true) {
-        [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    while (![_thread isCancelled]) {
+        @autoreleasepool {
+            [runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+        }
     }
+
+    [self USBStop];
 }
 
 - (void)start
 {
     _thread = [[NSThread alloc] initWithTarget:self selector:@selector(USBRun:) object:nil];
     [_thread start];
+}
+
+- (void)stop
+{
+    [_thread cancel];
+    BOOL done = NO;
+    for (NSUInteger i = 0; i < 25; ++i) {
+        [NSThread sleepForTimeInterval:0.1];
+        if (!_thread.isExecuting) {
+            done = YES;
+            break;
+        }
+    }
+    if (!done) {
+        FDLog(@"usb monitor thread failed to stop");
+    }
+    _thread = nil;
+    _usbDevices = [NSMutableArray array];
 }
 
 @end

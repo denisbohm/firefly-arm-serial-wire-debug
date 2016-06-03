@@ -47,6 +47,7 @@
 @property (readonly, nonnull) NSArray<FDUSBDevice *> *devices;
 
 - (void)start;
+- (void)stop;
 
 - (nullable FDUSBDevice *)deviceWithLocation:(nonnull NSObject *)location;
 

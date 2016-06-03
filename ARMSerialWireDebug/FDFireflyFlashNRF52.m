@@ -18,4 +18,25 @@
     return YES;
 }
 
+- (BOOL)disableWatchdogByErasingIfNeeded:(BOOL *)erased error:(NSError **)error
+{
+    return YES; // !!! need to implement -denis
+}
+
+- (BOOL)feedWatchdog:(NSError **)error
+{
+    return YES; // !!! need to implement -denis
+}
+
+- (BOOL)setDebugLock:(NSError **)error
+{
+    return YES; // !!! need to implement -denis
+}
+
+- (BOOL)getDebugLock:(BOOL *)debugLock error:(NSError **)error
+{
+    *debugLock = NO;
+    return YES; // !!! need to implement -denis
+}
+
 @end

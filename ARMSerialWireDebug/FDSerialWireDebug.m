@@ -891,7 +891,7 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
     if (error != nil) {
         *error = blockError;
     }
-    return blockError != nil;
+    return blockError == nil;
 }
 
 - (BOOL)writeMemory:(UInt32)address data:(NSData *)data error:(NSError **)error

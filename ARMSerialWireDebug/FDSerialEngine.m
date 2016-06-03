@@ -35,7 +35,7 @@
 - (id)init
 {
     if (self = [super init]) {
-        _timeout = 0.5;
+        _timeout = 0.0;
         _readPipe = 1;
         _writePipe = 2;
         _writeData = [NSMutableData data];
@@ -205,7 +205,7 @@
 - (NSData *)read:(UInt32)length error:(NSError **)error
 {
     if (![self write:error]) {
-        return NO;
+        return nil;
     }
     
     NSMutableData *data = [NSMutableData dataWithCapacity:2 + length];
