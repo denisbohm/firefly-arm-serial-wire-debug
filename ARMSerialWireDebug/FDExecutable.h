@@ -19,9 +19,9 @@
 
 @end
 
-typedef enum {
+typedef NS_ENUM(NSInteger, FDExecutableSectionType) {
     FDExecutableSectionTypeProgram, FDExecutableSectionTypeData
-} FDExecutableSectionType;
+};
 
 @interface FDExecutableSection : NSObject
 
