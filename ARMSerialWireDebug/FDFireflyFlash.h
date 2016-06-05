@@ -6,11 +6,10 @@
 //  Copyright (c) 2013 Firefly Design. All rights reserved.
 //
 
+#import "FDCortexM.h"
 #import "FDExecutable.h"
-
-#import <ARMSerialWireDebug/FDCortexM.h>
-#import <ARMSerialWireDebug/FDLogger.h>
-#import <ARMSerialWireDebug/FDSerialWireDebug.h>
+#import "FDLogger.h"
+#import "FDSerialWireDebug.h"
 
 @interface FDFireflyFlash : NSObject
 
@@ -28,6 +27,10 @@
 @property uint32_t ramSize;
 
 @property uint32_t pagesPerWrite;
+
+- (BOOL)isAuthenticationAccessPortActive:(nonnull BOOL *)value error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)authenticationAccessPortErase:(NSError * _Nullable * _Nullable)error;
+- (BOOL)authenticationAccessPortReset:(NSError * _Nullable * _Nullable)error;
 
 - (BOOL)initialize:(nonnull FDSerialWireDebug *)serialWireDebug error:(NSError * _Nullable * _Nullable)error;
 

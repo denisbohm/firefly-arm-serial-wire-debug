@@ -11,114 +11,6 @@
 #import "FDSerialEngine.h"
 #import "FDSerialWireDebug.h"
 
-#define BIT(n) (1 << (n))
-
-// Debug Port (DP)
-
-// Cortex M4
-#define SWD_DPID_CM4 0x0ba01477
-// Cortex M3
-#define SWD_DPID_CM3 0x2ba01477
-// Cortex M0
-#define SWD_DPID_CM0DAP1 0x0bb11477
-// Cortex M0+
-#define SWD_DPID_CM0DAP2 0x0bb12477
-
-#define SWD_DP_IDCODE 0x00
-#define SWD_DP_ABORT  0x00
-#define SWD_DP_CTRL   0x04
-#define SWD_DP_STAT   0x04
-#define SWD_DP_SELECT 0x08
-#define SWD_DP_RDBUFF 0x0c
-
-#define SWD_DP_ABORT_ORUNERRCLR BIT(4)
-#define SWD_DP_ABORT_WDERRCLR BIT(3)
-#define SWD_DP_ABORT_STKERRCLR BIT(2)
-#define SWD_DP_ABORT_STKCMPCLR BIT(1)
-#define SWD_DP_ABORT_DAPABORT BIT(0)
-
-#define SWD_DP_CTRL_CSYSPWRUPACK BIT(31)
-#define SWD_DP_CTRL_CSYSPWRUPREQ BIT(30)
-#define SWD_DP_CTRL_CDBGPWRUPACK BIT(29)
-#define SWD_DP_CTRL_CDBGPWRUPREQ BIT(28)
-#define SWD_DP_CTRL_CDBGRSTACK BIT(27)
-#define SWD_DP_CTRL_CDBGRSTREQ BIT(26)
-#define SWD_DP_STAT_WDATAERR BIT(7)
-#define SWD_DP_STAT_READOK BIT(6)
-#define SWD_DP_STAT_STICKYERR BIT(5)
-#define SWD_DP_STAT_STICKYCMP BIT(4)
-#define SWD_DP_STAT_TRNMODE BIT(3) | BIT(2)
-#define SWD_DP_STAT_STICKYORUN BIT(1)
-#define SWD_DP_STAT_ORUNDETECT BIT(0)
-
-#define SWD_DP_SELECT_APSEL_APB_AP 0
-#define SWD_DP_SELECT_APSEL_NRF52_CTRL_AP 1
-
-#define SWD_AP_IDR 0xfc
-
-// Authentication Access Port (AAP)
-
-#define SWD_AAP_CMD 0x00
-#define SWD_AAP_CMDKEY 0x04
-#define SWD_AAP_STATUS 0x08
-#define SWD_AAP_IDR 0xfc
-
-#define SWD_AAP_CMD_SYSRESETREQ 0x00000002
-#define SWD_AAP_CMD_DEVICEERASE 0x00000001
-
-#define SWD_AAP_CMDKEY_WRITEEN 0xcfacc118
-
-#define SWD_AAP_STATUS_ERASEBUSY 0x00000001
-
-// Device is locked
-#define SWD_AAP_ID 0x16e60001
-
-// Advanced High-Performance Bus Access Port (AHB_AP or just AP)
-#define SWD_AHB_AP_ID_V1 0x24770011
-#define SWD_AHB_AP_ID_v2 0x04770021
-
-#define SWD_AP_CSW 0x00
-#define SWD_AP_TAR 0x04
-#define SWD_AP_SBZ 0x08
-#define SWD_AP_DRW 0x0c
-#define SWD_AP_BD0 0x10
-#define SWD_AP_BD1 0x14
-#define SWD_AP_BD2 0x18
-#define SWD_AP_BD3 0x1c
-#define SWD_AP_DBGDRAR 0xf8
-#define SWD_AP_IDR 0xfc
-
-#define SWD_AP_CSW_DBGSWENABLE BIT(31)
-#define SWD_AP_CSW_MASTER_DEBUG BIT(29)
-#define SWD_AP_CSW_HPROT BIT(25)
-#define SWD_AP_CSW_SPIDEN BIT(23)
-#define SWD_AP_CSW_TRIN_PROG BIT(7)
-#define SWD_AP_CSW_DEVICE_EN BIT(6)
-#define SWD_AP_CSW_INCREMENT_PACKED BIT(5)
-#define SWD_AP_CSW_INCREMENT_SINGLE BIT(4)
-#define SWD_AP_CSW_32BIT BIT(1)
-#define SWD_AP_CSW_16BIT BIT(0)
-
-#define SWD_MEMORY_CPUID 0xE000ED00
-#define SWD_MEMORY_DFSR  0xE000ED30
-#define SWD_MEMORY_DHCSR 0xE000EDF0
-#define SWD_MEMORY_DCRSR 0xE000EDF4
-#define SWD_MEMORY_DCRDR 0xE000EDF8
-#define SWD_MEMORY_DEMCR 0xE000EDFC
-
-#define SWD_DHCSR_DBGKEY 0xA05F0000
-#define SWD_DHCSR_STAT_RESET_ST BIT(25)
-#define SWD_DHCSR_STAT_RETIRE_ST BIT(24)
-#define SWD_DHCSR_STAT_LOCKUP BIT(19)
-#define SWD_DHCSR_STAT_SLEEP BIT(18)
-#define SWD_DHCSR_STAT_HALT BIT(17)
-#define SWD_DHCSR_STAT_REGRDY BIT(16)
-#define SWD_DHCSR_CTRL_SNAPSTALL BIT(5)
-#define SWD_DHCSR_CTRL_MASKINTS BIT(3)
-#define SWD_DHCSR_CTRL_STEP BIT(2)
-#define SWD_DHCSR_CTRL_HALT BIT(1)
-#define SWD_DHCSR_CTRL_DEBUGEN BIT(0)
-
 @interface FDSerialWireDebug ()
 
 @property UInt16 gpioInputs;
@@ -360,23 +252,13 @@
     return [self getParityUInt8:v];
 }
 
-typedef enum {
-    SWDDebugPort,
-    SWDAccessPort,
-} SWDPort;
-
-typedef enum {
-    SWDWriteDirection,
-    SWDReadDirection,
-} SWDDirection;
-
-- (UInt8)encodeRequestPort:(SWDPort)port direction:(SWDDirection)direction address:(UInt8)address
+- (UInt8)encodeRequestPort:(FDSerialWireDebugPort)port direction:(FDSerialWireDebugDirection)direction address:(UInt8)address
 {
     UInt8 request = 0b10000001; // Start (bit 0) & Park (bit 7)
-    if (port == SWDAccessPort) {
+    if (port == FDSerialWireDebugPortAccess) {
         request |= 0b00000010;
     }
-    if (direction == SWDReadDirection) {
+    if (direction == FDSerialWireDebugDirectionRead) {
         request |= 0b00000100;
     }
     request |= (address << 1) & 0b00011000;
@@ -442,11 +324,11 @@ typedef enum {
     [_serialEngine shiftOutBitsLSBFirstNegativeEdge:parity bitCount:1];
 }
 
-- (BOOL)readPort:(SWDPort)port registerOffset:(UInt8)registerOffset value:(UInt32 *)value error:(NSError **)error
+- (BOOL)readPort:(FDSerialWireDebugPort)port registerOffset:(UInt8)registerOffset value:(UInt32 *)value error:(NSError **)error
 {
-//    NSLog(@"read  %@ %02x", port == SWDDebugPort ? @"dp" : @"ap", registerOffset);
+//    NSLog(@"read  %@ %02x", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset);
     NSError *deepError;
-    UInt8 request = [self encodeRequestPort:port direction:SWDReadDirection address:registerOffset];
+    UInt8 request = [self encodeRequestPort:port direction:FDSerialWireDebugDirectionRead address:registerOffset];
     for (NSUInteger retry = 0; retry < _ackWaitRetryCount; ++retry) {
         SWDAck ack;
         if (![self request:request ack:&ack error:&deepError]) {
@@ -465,7 +347,7 @@ typedef enum {
                 }
                 [self turnToWriteAndSkip];
             }
-//            NSLog(@"read  %@ %02x = %08x", port == SWDDebugPort ? @"dp" : @"ap", registerOffset, value);
+//            NSLog(@"read  %@ %02x = %08x", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset, value);
             return YES;
         }
         if (!_overrunDetectionEnabled) {
@@ -482,11 +364,11 @@ typedef enum {
     return NO;
 }
 
-- (BOOL)writePort:(SWDPort)port registerOffset:(UInt8)registerOffset value:(UInt32)value error:(NSError **)error
+- (BOOL)writePort:(FDSerialWireDebugPort)port registerOffset:(UInt8)registerOffset value:(UInt32)value error:(NSError **)error
 {
-//    NSLog(@"write %@ %02x = %08x", port == SWDDebugPort ? @"dp" : @"ap", registerOffset, value);
+//    NSLog(@"write %@ %02x = %08x", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset, value);
     NSError *deepError;
-    UInt8 request = [self encodeRequestPort:port direction:SWDWriteDirection address:registerOffset];
+    UInt8 request = [self encodeRequestPort:port direction:FDSerialWireDebugDirectionWrite address:registerOffset];
     for (NSUInteger retry = 0; retry < _ackWaitRetryCount; ++retry) {
         SWDAck ack;
         if (![self request:request ack:&ack error:&deepError]) {
@@ -500,11 +382,11 @@ typedef enum {
             if (!_overrunDetectionEnabled) {
                 [self writeUInt32:value];
             }
-//            NSLog(@"write %@ %02x = %08x done", port == SWDDebugPort ? @"dp" : @"ap", registerOffset, value);
+//            NSLog(@"write %@ %02x = %08x done", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset, value);
             return YES;
         }
         if (ack != SWDWaitAck) {
-            NSString *reason = [NSString stringWithFormat:@"unexpected ack %u writing to port %u, register offset %d, value 0x%08x", ack, port, registerOffset, value];
+            NSString *reason = [NSString stringWithFormat:@"unexpected ack %u writing to port %ld, register offset %d, value 0x%08x", ack, (long)port, registerOffset, value];
             return FDErrorReturn(error, @{@"reason": reason});
         }
     }
@@ -516,12 +398,12 @@ typedef enum {
 
 - (BOOL)readDebugPort:(UInt8)registerOffset value:(UInt32 *)value error:(NSError **)error
 {
-    return [self readPort:SWDDebugPort registerOffset:registerOffset value:value error:error];
+    return [self readPort:FDSerialWireDebugPortDebug registerOffset:registerOffset value:value error:error];
 }
 
 - (BOOL)writeDebugPort:(UInt8)registerOffset value:(UInt32)value error:(NSError **)error
 {
-    return [self writePort:SWDDebugPort registerOffset:registerOffset value:value error:error];
+    return [self writePort:FDSerialWireDebugPortDebug registerOffset:registerOffset value:value error:error];
 }
 
 - (BOOL)readDebugPortIDCode:(UInt32 *)value error:(NSError **)error
@@ -531,7 +413,7 @@ typedef enum {
 
 - (BOOL)readTargetID:(UInt32 *)value error:(NSError **)error
 {
-    if (![self writePort:SWDDebugPort registerOffset:SWD_DP_SELECT value:0x02 error:error]) {
+    if (![self writePort:FDSerialWireDebugPortDebug registerOffset:SWD_DP_SELECT value:0x02 error:error]) {
         return NO;
     }
     return [self readDebugPort:0x04 value:value error:error];
@@ -632,7 +514,7 @@ typedef enum {
 - (BOOL)accessPortBankSelect:(UInt8)accessPort registerOffset:(UInt8)registerOffset error:(NSError **)error
 {
     UInt32 value = (accessPort << 24) | (registerOffset & 0xf0);
-    return [self writePort:SWDDebugPort registerOffset:SWD_DP_SELECT value:value error:error];
+    return [self writePort:FDSerialWireDebugPortDebug registerOffset:SWD_DP_SELECT value:value error:error];
 }
 
 - (BOOL)readAccessPort:(UInt8)accessPort registerOffset:(UInt8)registerOffset value:(UInt32 *)value error:(NSError **)error
@@ -642,10 +524,10 @@ typedef enum {
         return NO;
     }
     UInt32 dummy;
-    if (![self readPort:SWDAccessPort registerOffset:registerOffset value:&dummy error:error]) {
+    if (![self readPort:FDSerialWireDebugPortAccess registerOffset:registerOffset value:&dummy error:error]) {
         return NO;
     }
-    if (![self readPort:SWDDebugPort registerOffset:SWD_DP_RDBUFF value:value error:error]) {
+    if (![self readPort:FDSerialWireDebugPortDebug registerOffset:SWD_DP_RDBUFF value:value error:error]) {
         return NO;
     }
 //    NSLog(@"read access port %02x = %08x", registerOffset, value);
@@ -663,7 +545,7 @@ typedef enum {
     if (![self accessPortBankSelect:accessPort registerOffset:registerOffset error:error]) {
         return NO;
     }
-    if (![self writePort:SWDAccessPort registerOffset:registerOffset value:value error:error]) {
+    if (![self writePort:FDSerialWireDebugPortAccess registerOffset:registerOffset value:value error:error]) {
         return NO;
     }
     [self flush];
@@ -812,7 +694,7 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
         return NO;
     }
     
-    uint8_t request = [self encodeRequestPort:SWDAccessPort direction:SWDWriteDirection address:SWD_AP_DRW];
+    uint8_t request = [self encodeRequestPort:FDSerialWireDebugPortAccess direction:FDSerialWireDebugDirectionWrite address:SWD_AP_DRW];
     uint8_t *bytes = (uint8_t *)data.bytes;
     NSUInteger length = data.length;
     for (NSUInteger i = 0; i < length; i += 4) {
@@ -830,7 +712,7 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
     
     NSMutableData *data = [NSMutableData dataWithCapacity:length];
 
-    uint8_t request = [self encodeRequestPort:SWDAccessPort direction:SWDReadDirection address:SWD_AP_DRW];
+    uint8_t request = [self encodeRequestPort:FDSerialWireDebugPortAccess direction:FDSerialWireDebugDirectionRead address:SWD_AP_DRW];
     uint32_t words = length / 4;
     // note: 1 extra iteration because of 1 read delay in getting data out
     for (NSUInteger i = 0; i <= words; ++i) {
@@ -986,174 +868,6 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
     return YES;
 }
 
-#define MSC 0x400c0000
-
-#define MSC_WRITECTRL (MSC + 0x008)
-#define MSC_WRITECMD  (MSC + 0x00c)
-#define MSC_ADDRB     (MSC + 0x010)
-#define MSC_WDATA     (MSC + 0x018)
-#define MSC_STATUS    (MSC + 0x01c)
-#define MSC_MASSLOCK  (MSC + 0x054)
-
-#define MSC_WRITECTRL_WREN BIT(0)
-
-#define MSC_WRITECMD_LADDRIM    BIT(0)
-#define MSC_WRITECMD_ERASEPAGE  BIT(1)
-#define MSC_WRITECMD_WRITEEND   BIT(2)
-#define MSC_WRITECMD_WRITEONCE  BIT(3)
-#define MSC_WRITECMD_WRITETRIG  BIT(4)
-#define MSC_WRITECMD_ERASEABORT BIT(5)
-#define MSC_WRITECMD_ERASEMAIN0 BIT(8)
-#define MSC_WRITECMD_ERASEMAIN1 BIT(9)
-#define MSC_WRITECMD_CLEARWDATA BIT(12)
-
-#define MSC_STATUS_BUSY       BIT(0)
-#define MSC_STATUS_LOCKED     BIT(1)
-#define MSC_STATUS_INVADDR    BIT(2)
-#define MSC_STATUS_WDATAREADY BIT(3)
-
-#define MSC_MASSLOCK_UNLOCK 0x631a
-
-- (BOOL)memorySystemControllerStatusWait:(UInt32)mask value:(UInt32)value error:(NSError **)error
-{
-    NSTimeInterval timeout = 0.250;
-    NSDate *start = [NSDate date];
-    NSDate *now;
-    do {
-        UInt32 status;
-        if (![self readMemory:MSC_STATUS value:&status error:error]) {
-            return NO;
-        }
-        if ((status & mask) != value) {
-            return YES;
-        }
-        
-        [NSThread sleepForTimeInterval:0.0001];
-        now = [NSDate date];
-    } while ([now timeIntervalSinceDate:start] < timeout);
-    return FDErrorReturn(error, @{@"reason": @"timeout"});
-}
-
-- (BOOL)loadAddress:(UInt32)address error:(NSError **)error
-{
-    if (![self writeMemory:MSC_WRITECTRL value:MSC_WRITECTRL_WREN error:error]) {
-        return NO;
-    }
-    if (![self writeMemory:MSC_ADDRB value:address error:error]) {
-        return NO;
-    }
-    if (![self writeMemory:MSC_WRITECMD value:MSC_WRITECMD_LADDRIM error:error]) {
-        return NO;
-    }
-    UInt32 status;
-    if (![self readMemory:MSC_STATUS value:&status error:error]) {
-        return NO;
-    }
-    if (status & (MSC_STATUS_INVADDR | MSC_STATUS_LOCKED)) {
-        NSLog(@"fail");
-    }
-    return YES;
-}
-
-- (BOOL)erase:(UInt32)address error:(NSError **)error
-{
-    BOOL (^block)(NSError **) = ^(NSError **error) {
-        if (![self loadAddress:address error:error]) {
-            return NO;
-        }
-        if (![self writeMemory:MSC_WRITECMD value:MSC_WRITECMD_ERASEPAGE error:error]) {
-            return NO;
-        }
-        return [self memorySystemControllerStatusWait:MSC_STATUS_BUSY value:MSC_STATUS_BUSY error:error];
-    };
-    return [self recoverAndRetry:block error:error];
-}
-
-- (BOOL)massErase:(NSError **)error
-{
-    BOOL (^block)(NSError **) = ^(NSError **error) {
-        if (![self writeMemory:MSC_WRITECTRL value:MSC_WRITECTRL_WREN error:error]) {
-            return NO;
-        }
-        if (![self writeMemory:MSC_MASSLOCK value:MSC_MASSLOCK_UNLOCK error:error]) {
-            return NO;
-        }
-        if (![self writeMemory:MSC_WRITECMD value:MSC_WRITECMD_ERASEMAIN0 error:error]) {
-            return NO;
-        }
-        return [self memorySystemControllerStatusWait:MSC_STATUS_BUSY value:MSC_STATUS_BUSY error:error];
-    };
-    return [self recoverAndRetry:block error:error];
-}
-
-- (BOOL)flashTransfer:(UInt32)address data:(NSData *)data error:(NSError **)error
-{
-    if ((address & 0x3) != 0) {
-        NSString *reason = [NSString stringWithFormat:@"invalid address: %08x", address];
-        return FDErrorReturn(error, @{@"reason": reason});
-    }
-    UInt32 length = (UInt32)data.length;
-    if ((length == 0) || ((length & 0x3) != 0)) {
-        NSString *reason = [NSString stringWithFormat:@"invalid length: %lu", (unsigned long int)length];
-        return FDErrorReturn(error, @{@"reason": reason});
-    }
-
-    BOOL fast = NO;
-    if (fast) {
-        if (![self accessPortBankSelect:SWD_DP_SELECT_APSEL_APB_AP registerOffset:0x00 error:error]) {
-            return NO;
-        }
-        if (![self setOverrunDetection:true error:error]) {
-            return NO;
-        }
-    }
-    
-    UInt8 apTarRequest = [self encodeRequestPort:SWDAccessPort direction:SWDWriteDirection address:SWD_AP_TAR];
-    UInt8 apDrwRequest = [self encodeRequestPort:SWDAccessPort direction:SWDWriteDirection address:SWD_AP_DRW];
-    UInt8 *bytes = (UInt8 *)data.bytes;
-    for (NSUInteger i = 0; i < length; i += 4) {
-        UInt32 value = unpackLittleEndianUInt32(&bytes[i]);
-        if (fast) {
-// We don't need the two way status waits, because going over USB via FTDI, etc
-// is slower than the operations take. -denis
-            [self requestWriteSkip:apTarRequest value:MSC_WDATA];
-            [self requestWriteSkip:apDrwRequest value:value];
-            [self requestWriteSkip:apTarRequest value:MSC_WRITECMD];
-            [self requestWriteSkip:apDrwRequest value:MSC_WRITECMD_WRITETRIG];
-        } else {
-            if (![self loadAddress:(uint32_t)(address + i) error:error]) {
-                return NO;
-            }
-            if (![self memorySystemControllerStatusWait:MSC_STATUS_WDATAREADY value:0 error:error]) {
-                return NO;
-            }
-            if (![self writeMemory:MSC_WDATA value:value error:error]) {
-                return NO;
-            }
-            if (![self writeMemory:MSC_WRITECMD value:MSC_WRITECMD_WRITEONCE error:error]) {
-                return NO;
-            }
-            return [self memorySystemControllerStatusWait:MSC_STATUS_BUSY value:MSC_STATUS_BUSY error:error];
-        }
-    }
-    
-    if (fast) {
-        [self flush];
-        if (![self afterMemoryTransfer:error]) {
-            return NO;
-        }
-    }
-    return YES;
-}
-
-- (BOOL)flash:(UInt32)address data:(NSData *)data error:(NSError **)error
-{
-    BOOL (^block)(UInt32, UInt32, UInt32, NSError **) = ^(UInt32 subaddress, UInt32 offset, UInt32 sublength, NSError **error) {
-        return [self flashTransfer:subaddress data:[data subdataWithRange:NSMakeRange(offset, sublength)] error:error];
-    };
-    return [self paginate:0x7ff address:address length:(UInt32)data.length block:block error:error];
-}
-
 #define FP_CTRL 0xE0002000
 #define FP_REMAP 0xE0002004
 #define FP_COMP0 0xE0002008
@@ -1177,13 +891,13 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
 #define CID2 0xE0002FF8
 #define CID3 0xE0002FFC
 
-#define FP_CTRL_KEY    BIT(1)
-#define FP_CTRL_ENABLE BIT(0)
+#define FP_CTRL_KEY    FDSerialWireDebugBit(1)
+#define FP_CTRL_ENABLE FDSerialWireDebugBit(0)
 
 #define FP_COMP_REPLACE_U 0x80000000
 #define FP_COMP_REPLACE_L 0x40000000
 #define FP_COMP_ADDRESS 0x1ffffffc
-#define FP_COMP_ENABLE BIT(0)
+#define FP_COMP_ENABLE FDSerialWireDebugBit(0)
 
 - (BOOL)breakpointCount:(UInt32 *)numCode error:(NSError **)error
 {
@@ -1442,125 +1156,6 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
     }
 
     return YES;
-}
-
-#define IDR_CODE(id) (((id) >> 17) & 0x7ff)
-
-#define NRF52_AP_REG_RESET 0x00
-#define NRF52_AP_REG_ERASEALL 0x04
-#define NRF52_AP_REG_ERASEALLSTATUS 0x08
-#define NRF52_AP_REG_APPROTECTSTATUS 0x0c
-#define NRF52_AP_REG_IDR 0xfc
-
-#define NRF52_CTRL_AP_ID 0x02880000
-
-#define SWD_NRF52_CTRL_AP_ERASE_TIMEOUT 10.0
-
-
-- (BOOL)isAuthenticationAccessPortActive:(BOOL *)active error:(NSError **)error
-{
-    uint32_t dpid;
-    if (![self readDebugPort:0 value:&dpid error:error]) {
-        return NO;
-    }
-    if ((dpid != SWD_DPID_CM4) && (dpid != SWD_DPID_CM3) && (dpid != SWD_DPID_CM0DAP1) && (dpid != SWD_DPID_CM0DAP2)){
-        NSString *reason = [NSString stringWithFormat:@"DPID 0x%08x not recognized", dpid];
-        return FDErrorReturn(error, @{@"reason": reason});
-    }
-
-    // EFM32G
-    uint32_t apid;
-    if (![self readAccessPortID:SWD_DP_SELECT_APSEL_APB_AP value:&apid error:error]) {
-        return NO;
-    }
-    *active = IDR_CODE(apid) == IDR_CODE(SWD_AAP_ID);
-
-    // NRF52
-    if (![self readAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_IDR value:&apid error:error]) {
-        return NO;
-    }
-    if (IDR_CODE(apid) == IDR_CODE(NRF52_CTRL_AP_ID)) {
-        UInt32 value;
-        if (![self readAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_APPROTECTSTATUS value:&value error:error]) {
-            return NO;
-        }
-        *active = (value & 0x00000001) == 0;
-    }
-
-    return YES;
-}
-
-#define SWD_AAP_ERASE_TIMEOUT 0.200 // erase takes 125 ms
-
-- (BOOL)authenticationAccessPortEraseEFM32G:(NSError **)error
-{
-    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AAP_CMDKEY value:SWD_AAP_CMDKEY_WRITEEN error:error]) {
-        return NO;
-    }
-    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AAP_CMD value:SWD_AAP_CMD_DEVICEERASE error:error]) {
-        return NO;
-    }
-    NSDate *start = [NSDate date];
-    do {
-        [NSThread sleepForTimeInterval:0.025];
-        uint32_t status;
-        if (![self readAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AAP_STATUS value:&status error:error]) {
-            return NO;
-        }
-        if ((status & SWD_AAP_STATUS_ERASEBUSY) == 0) {
-            return YES;
-        }
-    } while ([[NSDate date] timeIntervalSinceDate:start] < SWD_AAP_ERASE_TIMEOUT);
-    return FDErrorReturn(error, @{@"reason": @"timeout"});
-}
-
-- (BOOL)authenticationAccessPortEraseNRF52:(NSError **)error
-{
-    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_ERASEALL value:0x00000001 error:error]) { // erase all
-        return NO;
-    }
-    UInt32 value;
-    NSDate *start = [NSDate date];
-    do {
-        [NSThread sleepForTimeInterval:0.025];
-        if (![self readAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_ERASEALLSTATUS value:&value error:error]) {
-            return NO;
-        }
-        if ([[NSDate date] timeIntervalSinceDate:start] > SWD_NRF52_CTRL_AP_ERASE_TIMEOUT) {
-            return FDErrorReturn(error, @{@"reason": @"timeout"});
-        }
-    } while (value != 0);
-    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_ERASEALL value:0x00000000 error:error]) { // erase all off
-        return NO;
-    }
-
-    return YES;
-}
-
-- (BOOL)authenticationAccessPortErase:(NSError **)error
-{
-    return [self authenticationAccessPortEraseNRF52:error];
-}
-
-- (BOOL)authenticationAccessPortResetEFM32G:(NSError **)error
-{
-    return [self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AAP_CMD value:SWD_AAP_CMD_SYSRESETREQ error:error];
-}
-
-- (BOOL)authenticationAccessPortResetNRF52:(NSError **)error
-{
-    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_RESET value:0x00000001 error:error]) { // reset
-        return NO;
-    }
-    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_RESET value:0x00000000 error:error]) { // reset off
-        return NO;
-    }
-    return YES;
-}
-
-- (BOOL)authenticationAccessPortReset:(NSError **)error
-{
-    return [self authenticationAccessPortResetNRF52:error];
 }
 
 - (BOOL)initializeAccessPort:(NSError **)error

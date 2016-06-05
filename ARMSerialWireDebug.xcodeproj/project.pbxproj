@@ -24,7 +24,6 @@
 		920799201CFE5586001A138A /* FDSerialWireDebug.m in Sources */ = {isa = PBXBuildFile; fileRef = 9207991E1CFE5586001A138A /* FDSerialWireDebug.m */; };
 		920799241CFE7B9A001A138A /* FDCortexM.h in Headers */ = {isa = PBXBuildFile; fileRef = 920799211CFE7B9A001A138A /* FDCortexM.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		920799251CFE7B9A001A138A /* FDCortexM.m in Sources */ = {isa = PBXBuildFile; fileRef = 920799221CFE7B9A001A138A /* FDCortexM.m */; };
-		920799261CFE7B9A001A138A /* FDEFM32.h in Headers */ = {isa = PBXBuildFile; fileRef = 920799231CFE7B9A001A138A /* FDEFM32.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		92384D301CFF7FFD005622AA /* libdwarf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92384D2E1CFF7FFD005622AA /* libdwarf.a */; };
 		92384D311CFF7FFD005622AA /* libelf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92384D2F1CFF7FFD005622AA /* libelf.a */; };
 		92384D391CFF84B3005622AA /* FDFireflyFlash.h in Headers */ = {isa = PBXBuildFile; fileRef = 92384D321CFF84B3005622AA /* FDFireflyFlash.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -34,6 +33,8 @@
 		92384D3D1CFF84B3005622AA /* FDFireflyFlashNRF52.h in Headers */ = {isa = PBXBuildFile; fileRef = 92384D361CFF84B3005622AA /* FDFireflyFlashNRF52.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		92384D3E1CFF84B3005622AA /* FDFireflyFlashNRF52.m in Sources */ = {isa = PBXBuildFile; fileRef = 92384D371CFF84B3005622AA /* FDFireflyFlashNRF52.m */; };
 		92384D3F1CFF84B3005622AA /* FireflyFlashNRF52.elf in Resources */ = {isa = PBXBuildFile; fileRef = 92384D381CFF84B3005622AA /* FireflyFlashNRF52.elf */; };
+		92581B9C1D04D34400A546CA /* FDFireflyFlashEFM32.h in Headers */ = {isa = PBXBuildFile; fileRef = 92581B9A1D04D34400A546CA /* FDFireflyFlashEFM32.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		92581B9D1D04D34400A546CA /* FDFireflyFlashEFM32.m in Sources */ = {isa = PBXBuildFile; fileRef = 92581B9B1D04D34400A546CA /* FDFireflyFlashEFM32.m */; };
 		925F9F8A1CFF3EE200D1C1FE /* FDExecutable.h in Headers */ = {isa = PBXBuildFile; fileRef = 925F9F881CFF3EE200D1C1FE /* FDExecutable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		925F9F8B1CFF3EE200D1C1FE /* FDExecutable.m in Sources */ = {isa = PBXBuildFile; fileRef = 925F9F891CFF3EE200D1C1FE /* FDExecutable.m */; };
 /* End PBXBuildFile section */
@@ -69,7 +70,6 @@
 		9207991E1CFE5586001A138A /* FDSerialWireDebug.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDSerialWireDebug.m; sourceTree = "<group>"; };
 		920799211CFE7B9A001A138A /* FDCortexM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDCortexM.h; sourceTree = "<group>"; };
 		920799221CFE7B9A001A138A /* FDCortexM.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDCortexM.m; sourceTree = "<group>"; };
-		920799231CFE7B9A001A138A /* FDEFM32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDEFM32.h; sourceTree = "<group>"; };
 		92384D2E1CFF7FFD005622AA /* libdwarf.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdwarf.a; path = ARMSerialWireDebug/dependencies/lib/libdwarf.a; sourceTree = "<group>"; };
 		92384D2F1CFF7FFD005622AA /* libelf.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libelf.a; path = ARMSerialWireDebug/dependencies/lib/libelf.a; sourceTree = "<group>"; };
 		92384D321CFF84B3005622AA /* FDFireflyFlash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDFireflyFlash.h; sourceTree = "<group>"; };
@@ -79,6 +79,8 @@
 		92384D361CFF84B3005622AA /* FDFireflyFlashNRF52.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDFireflyFlashNRF52.h; sourceTree = "<group>"; };
 		92384D371CFF84B3005622AA /* FDFireflyFlashNRF52.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDFireflyFlashNRF52.m; sourceTree = "<group>"; };
 		92384D381CFF84B3005622AA /* FireflyFlashNRF52.elf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FireflyFlashNRF52.elf; sourceTree = "<group>"; };
+		92581B9A1D04D34400A546CA /* FDFireflyFlashEFM32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDFireflyFlashEFM32.h; sourceTree = "<group>"; };
+		92581B9B1D04D34400A546CA /* FDFireflyFlashEFM32.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDFireflyFlashEFM32.m; sourceTree = "<group>"; };
 		925F9F881CFF3EE200D1C1FE /* FDExecutable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDExecutable.h; sourceTree = "<group>"; };
 		925F9F891CFF3EE200D1C1FE /* FDExecutable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDExecutable.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -130,13 +132,14 @@
 				92008A751CFE2E3A00AFDF20 /* ARMSerialWireDebug.h */,
 				920799211CFE7B9A001A138A /* FDCortexM.h */,
 				920799221CFE7B9A001A138A /* FDCortexM.m */,
-				920799231CFE7B9A001A138A /* FDEFM32.h */,
 				920799191CFE50DC001A138A /* FDError.h */,
 				9207991A1CFE50DC001A138A /* FDError.m */,
 				925F9F881CFF3EE200D1C1FE /* FDExecutable.h */,
 				925F9F891CFF3EE200D1C1FE /* FDExecutable.m */,
 				92384D321CFF84B3005622AA /* FDFireflyFlash.h */,
 				92384D331CFF84B3005622AA /* FDFireflyFlash.m */,
+				92581B9A1D04D34400A546CA /* FDFireflyFlashEFM32.h */,
+				92581B9B1D04D34400A546CA /* FDFireflyFlashEFM32.m */,
 				92384D341CFF84B3005622AA /* FDFireflyFlashNRF5.h */,
 				92384D351CFF84B3005622AA /* FDFireflyFlashNRF5.m */,
 				92384D361CFF84B3005622AA /* FDFireflyFlashNRF52.h */,
@@ -173,6 +176,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				92581B9C1D04D34400A546CA /* FDFireflyFlashEFM32.h in Headers */,
 				92384D3D1CFF84B3005622AA /* FDFireflyFlashNRF52.h in Headers */,
 				92384D391CFF84B3005622AA /* FDFireflyFlash.h in Headers */,
 				92008A761CFE2E3A00AFDF20 /* ARMSerialWireDebug.h in Headers */,
@@ -185,7 +189,6 @@
 				9207990D1CFE2FD7001A138A /* FDUSBDevice.h in Headers */,
 				9207991B1CFE50DC001A138A /* FDError.h in Headers */,
 				92384D3B1CFF84B3005622AA /* FDFireflyFlashNRF5.h in Headers */,
-				920799261CFE7B9A001A138A /* FDEFM32.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,6 +292,7 @@
 			files = (
 				9207990E1CFE2FD7001A138A /* FDUSBDevice.m in Sources */,
 				92384D3E1CFF84B3005622AA /* FDFireflyFlashNRF52.m in Sources */,
+				92581B9D1D04D34400A546CA /* FDFireflyFlashEFM32.m in Sources */,
 				92384D3C1CFF84B3005622AA /* FDFireflyFlashNRF5.m in Sources */,
 				920799101CFE2FD7001A138A /* FDUSBMonitor.m in Sources */,
 				920799141CFE320C001A138A /* FDLogger.m in Sources */,

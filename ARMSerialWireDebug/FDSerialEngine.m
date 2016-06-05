@@ -225,6 +225,7 @@
         NSDate *now = [NSDate date];
         if ([deadline compare:now] == NSOrderedAscending) {
             FDErrorReturn(error, @{@"reason": @"timeout"});
+            return nil;
         }
     }
     return data;

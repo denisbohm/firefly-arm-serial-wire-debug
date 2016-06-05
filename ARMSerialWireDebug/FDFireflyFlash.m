@@ -6,12 +6,11 @@
 //  Copyright (c) 2013 Firefly Design. All rights reserved.
 //
 
+#import "FDCortexM.h"
 #import "FDError.h"
 #import "FDExecutable.h"
 #import "FDFireflyFlash.h"
-
-#import <ARMSerialWireDebug/FDCortexM.h>
-#import <ARMSerialWireDebug/FDSerialWireDebug.h>
+#import "FDSerialWireDebug.h"
 
 #define FIREFLY_FLASH_STACK_LENGTH 128
 
@@ -44,6 +43,21 @@
         _logger = [[FDLogger alloc] init];
     }
     return self;
+}
+
+- (BOOL)isAuthenticationAccessPortActive:(BOOL *)value error:(NSError **)error
+{
+    return FDErrorReturn(error, @{@"reason": @"unimplemented"});
+}
+
+- (BOOL)authenticationAccessPortErase:(NSError **)error
+{
+    return FDErrorReturn(error, @{@"reason": @"unimplemented"});
+}
+
+- (BOOL)authenticationAccessPortReset:(NSError **)error
+{
+    return FDErrorReturn(error, @{@"reason": @"unimplemented"});
 }
 
 - (BOOL)setupProcessor:(NSError **)error

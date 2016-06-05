@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Firefly Design. All rights reserved.
 //
 
+#import "FDError.h"
 #import "FDFireflyFlashNRF52.h"
 
 @implementation FDFireflyFlashNRF52
@@ -64,6 +65,68 @@
         return NO;
     }
     *debugLock = (value & 0x000000ff) != 0x000000ff;
+    return YES;
+}
+
+#define NRF52_AP_REG_RESET 0x00
+#define NRF52_AP_REG_ERASEALL 0x04
+#define NRF52_AP_REG_ERASEALLSTATUS 0x08
+#define NRF52_AP_REG_APPROTECTSTATUS 0x0c
+#define NRF52_AP_REG_IDR 0xfc
+
+#define NRF52_CTRL_AP_ID 0x02880000
+
+#define SWD_NRF52_CTRL_AP_ERASE_TIMEOUT 10.0
+
+- (BOOL)isAuthenticationAccessPortActive:(BOOL *)active error:(NSError **)error
+{
+    UInt32 apid;
+    if (![self.serialWireDebug readAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_IDR value:&apid error:error]) {
+        return NO;
+    }
+    if (SWD_IDR_CODE(apid) != SWD_IDR_CODE(NRF52_CTRL_AP_ID)) {
+        FDLog(@"unexpected nRF52 CTRL AP ID");
+    }
+
+    UInt32 value;
+    if (![self.serialWireDebug readAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_APPROTECTSTATUS value:&value error:error]) {
+        return NO;
+    }
+    *active = (value & 0x00000001) == 0;
+    return YES;
+}
+
+- (BOOL)authenticationAccessPortErase:(NSError **)error
+{
+    if (![self.serialWireDebug writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_ERASEALL value:0x00000001 error:error]) { // erase all
+        return NO;
+    }
+    UInt32 value;
+    NSDate *start = [NSDate date];
+    do {
+        [NSThread sleepForTimeInterval:0.025];
+        if (![self.serialWireDebug readAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_ERASEALLSTATUS value:&value error:error]) {
+            return NO;
+        }
+        if ([[NSDate date] timeIntervalSinceDate:start] > SWD_NRF52_CTRL_AP_ERASE_TIMEOUT) {
+            return FDErrorReturn(error, @{@"reason": @"timeout"});
+        }
+    } while (value != 0);
+    if (![self.serialWireDebug writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_ERASEALL value:0x00000000 error:error]) { // erase all off
+        return NO;
+    }
+
+    return YES;
+}
+
+- (BOOL)authenticationAccessPortReset:(NSError **)error
+{
+    if (![self.serialWireDebug writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_RESET value:0x00000001 error:error]) { // reset
+        return NO;
+    }
+    if (![self.serialWireDebug writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_RESET value:0x00000000 error:error]) { // reset off
+        return NO;
+    }
     return YES;
 }
 

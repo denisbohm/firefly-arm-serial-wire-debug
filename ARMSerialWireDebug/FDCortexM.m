@@ -7,6 +7,7 @@
 //
 
 #import "FDCortexM.h"
+#import "FDFireflyFlash.h"
 #import "FDLogger.h"
 #import "FDSerialWireDebug.h"
 
@@ -32,62 +33,13 @@
 
 + (NSString *)debugPortIDCodeDescription:(uint32_t)debugPortIDCode
 {
-    /*
-    unsigned revision = (debugPortIDCode >> 28) & 0xf;
-    unsigned partNumber = (debugPortIDCode >> 20) & 0xff;
-    BOOL min = (debugPortIDCode >> 16) & 0x1 ? YES : NO;
-    unsigned version = (debugPortIDCode >> 12) & 0xf;
-    unsigned designer = (debugPortIDCode >> 1) & 0x7ff;
-    unsigned marker = debugPortIDCode & 0x1;
-    if (marker != 1) {
-        NSLog(@"invalid debug port identification code %08x: marker not set", debugPortIDCode);
-    }
-    if (designer == 0x23B) {
-        NSLog(@"TAP ID: ARM is the manufacturer");
-    }
-    NSLog(@"TAP ID: revision %u, part number %02x, min %@, version %u, designer %03x", revision, partNumber, min ? @"YES" : @"NO", version, designer);
-     */
-    
-    /*
-    unsigned coreAndCapability = (partNumber >> 8) & 0xf;
-    NSString *capabilityName = nil;
-    switch (coreAndCapability) {
-        case 0x0: capabilityName = @"ARM Processor pre E extension - hard macrocell"; break;
-        case 0x1: capabilityName = @"ARM Processor pre E extension - soft macrocell"; break;
-        case 0x2: capabilityName = @"Reserved"; break;
-        case 0x3: capabilityName = @"Reserved"; break;
-        case 0x4: capabilityName = @"ARM processor with E extension - hard macrocell"; break;
-        case 0x5: capabilityName = @"ARM processor with E extension - soft macrocell"; break;
-        case 0x6: capabilityName = @"ARM Processor with J extension - hard macrocell"; break;
-        case 0x7: capabilityName = @"ARM Processor with J extension - soft macrocell"; break;
-        case 0x8: capabilityName = @"Reserved"; break;
-        case 0x9: capabilityName = @"Not a recognized executable ARM device"; break;
-        case 0xa: capabilityName = @"Reserved"; break;
-        case 0xb: capabilityName = @"ARM Embedded Trace Buffer"; break;
-        case 0xc: capabilityName = @"Reserved"; break;
-        case 0xd: capabilityName = @"Reserved"; break;
-        case 0xe: capabilityName = @"Reserved"; break;
-        case 0xf: capabilityName = @"Test chip boundary scan ID"; break;
-    }
-    NSLog(@"TAP ID: capability %@", capabilityName);
-    unsigned processorCore = partNumber >> 11;
-    unsigned family = partNumber >> 8;
-    unsigned deviceNumber = partNumber & 0xff;
-    NSLog(@"TAP ID: %@ processor core, family ARM%u, device number %u", processorCore ? @"non-ARM" : @"ARM", family, deviceNumber);
-     */
-    
     return [NSString stringWithFormat:@"IDCODE %08x", debugPortIDCode];
 }
 
 + (NSString *)cpuIDDescription:(uint32_t)cpuID
 {
-    //    FDLog(@"CPU ID = %08x", cpuID);
     unsigned implementer = (cpuID >> 24) & 0xff;
-    //    unsigned variant = (cpuID >> 20) & 0xf;
-    //    unsigned constant = (cpuID >> 16) & 0xf;
     unsigned partno = (cpuID >> 4) & 0xfff;
-    //    unsigned revision = cpuID & 0xf;
-    //    FDLog(@"CPU ID: implementer %02x, variant %u, constant %x, partno %03x, revision %u", implementer, variant, constant, partno, revision);
     NSString *implementerName = @"unknown";
     switch (implementer) {
         case 0x41: implementerName = @"ARM"; break;
@@ -100,7 +52,6 @@
         case 0xC23: partnoName = @"Cortex-M3"; break;
         case 0xC24: partnoName = @"Cortex-M4"; break;
     }
-    //    FDLog(@"CPU ID: %@ %@ r%dp%d", implementerName, partnoName, variant, revision);
     if ((cpuID & 0xfffffff0) == 0x410fc240) {
         uint32_t n = cpuID & 0x0000000f;
         return [NSString stringWithFormat:@"ARM Cortex-M4 r2p%d", n];
@@ -114,46 +65,6 @@
         return [NSString stringWithFormat:@"ARM Cortex-M0 r0p%d", n];
     }
     return [NSString stringWithFormat:@"CPUID = %08x", cpuID];
-}
-
-- (BOOL)identify:(NSError **)error
-{
-    [_serialWireDebug resetDebugPort];
-    uint32_t debugPortIDCode;
-    if (![_serialWireDebug readDebugPortIDCode:&debugPortIDCode error:error]) {
-        return NO;
-    }
-    NSLog(@"%@", [FDCortexM debugPortIDCodeDescription:debugPortIDCode]);
-    // if debug architecture version is 2 then read target id...
-    // uint32_t targetId = [_serialWireDebug readTargetID];
-    if (![_serialWireDebug initializeDebugPort:error]) {
-        return NO;
-    }
-
-    BOOL active;
-    if (![_serialWireDebug isAuthenticationAccessPortActive:&active error:error]) {
-        return NO;
-    }
-    if (active) {
-        FDLog(@"Authentication AP is active - erasing device to gain access.");
-        if (![_serialWireDebug authenticationAccessPortErase:error]) {
-            return NO;
-        }
-        if (![_serialWireDebug authenticationAccessPortReset:error]) {
-            return NO;
-        }
-        [NSThread sleepForTimeInterval:0.1];
-    }
-    
-    if (![_serialWireDebug initializeAccessPort:error]) {
-        return NO;
-    }
-    uint32_t cpuID;
-    if (![_serialWireDebug readCPUID:&cpuID error:error]) {
-        return NO;
-    }
-    FDLog(@"%@", [FDCortexM cpuIDDescription:cpuID]);
-    return YES;
 }
 
 - (void)logDebugInfo

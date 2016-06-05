@@ -1,13 +1,12 @@
 //
-//  FDEFM32.h
-//  ARMSerialWireDebug
+//  FDFireflyFlashEFM32.h
+//  FireflyProduction
 //
-//  Created by Denis Bohm on 7/23/13.
-//  Copyright (c) 2013 Firefly Design. All rights reserved.
+//  Created by Denis Bohm on 8/20/14.
+//  Copyright (c) 2014 Firefly Design. All rights reserved.
 //
 
-#ifndef ARMSerialWireDebug_FDEFM32_h
-#define ARMSerialWireDebug_FDEFM32_h
+#import "FDFireflyFlash.h"
 
 // Device Information Page Values
 #define EFM32_MEM_INFO_PAGE_SIZE 0x0FE081E7
@@ -51,4 +50,9 @@
 #define EFM32_LB_ULW (EFM32_LB + 126 * 4)
 #define EFM32_LB_PLW(n) (EFM32_LB + (n) * 4)
 
-#endif
+@interface FDFireflyFlashEFM32 : FDFireflyFlash
+
+@property uint8_t family;
+@property uint32_t flashSize;
+
+@end
