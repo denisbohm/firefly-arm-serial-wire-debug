@@ -1533,12 +1533,6 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
     if (![self writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_ERASEALL value:0x00000000 error:error]) { // erase all off
         return NO;
     }
-    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_RESET value:0x00000001 error:error]) { // reset
-        return NO;
-    }
-    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_RESET value:0x00000000 error:error]) { // reset off
-        return NO;
-    }
 
     return YES;
 }
