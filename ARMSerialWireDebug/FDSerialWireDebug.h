@@ -39,7 +39,7 @@
 - (BOOL)authenticationAccessPortErase:(NSError * _Nullable * _Nullable)error;
 - (BOOL)authenticationAccessPortReset:(NSError * _Nullable * _Nullable)error;
 
-- (BOOL)readAccessPortID:(nonnull UInt32 *)value error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)readAccessPortID:(UInt8)accessPort value:(nonnull UInt32 *)value error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)initializeAccessPort:(NSError * _Nullable * _Nullable)error;
 
 - (BOOL)readCPUID:(nonnull UInt32 *)value error:(NSError * _Nullable * _Nullable)error;

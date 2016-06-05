@@ -51,6 +51,11 @@
 #define SWD_DP_STAT_STICKYORUN BIT(1)
 #define SWD_DP_STAT_ORUNDETECT BIT(0)
 
+#define SWD_DP_SELECT_APSEL_APB_AP 0
+#define SWD_DP_SELECT_APSEL_NRF52_CTRL_AP 1
+
+#define SWD_AP_IDR 0xfc
+
 // Authentication Access Port (AAP)
 
 #define SWD_AAP_CMD 0x00
@@ -604,7 +609,7 @@ typedef enum {
         return NO;
     }
     
-    return [self writeAccessPort:SWD_AP_CSW
+    return [self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AP_CSW
                     value:SWD_AP_CSW_DBGSWENABLE |
                           SWD_AP_CSW_MASTER_DEBUG |
                           SWD_AP_CSW_HPROT |
@@ -624,15 +629,16 @@ typedef enum {
     return [self checkDebugPortStatus:error];
 }
 
-- (BOOL)accessPortBankSelect:(UInt8)registerOffset error:(NSError **)error
+- (BOOL)accessPortBankSelect:(UInt8)accessPort registerOffset:(UInt8)registerOffset error:(NSError **)error
 {
-    return [self writePort:SWDDebugPort registerOffset:SWD_DP_SELECT value:registerOffset & 0xf0 error:error];
+    UInt32 value = (accessPort << 24) | (registerOffset & 0xf0);
+    return [self writePort:SWDDebugPort registerOffset:SWD_DP_SELECT value:value error:error];
 }
 
-- (BOOL)readAccessPort:(UInt8)registerOffset value:(UInt32 *)value error:(NSError **)error
+- (BOOL)readAccessPort:(UInt8)accessPort registerOffset:(UInt8)registerOffset value:(UInt32 *)value error:(NSError **)error
 {
 //    NSLog(@"read access port %02x", registerOffset);
-    if (![self accessPortBankSelect:registerOffset error:error]) {
+    if (![self accessPortBankSelect:accessPort registerOffset:registerOffset error:error]) {
         return NO;
     }
     UInt32 dummy;
@@ -651,10 +657,10 @@ typedef enum {
     [_serialEngine shiftOutBitsLSBFirstNegativeEdge:0x00 bitCount:8];
 }
 
-- (BOOL)writeAccessPort:(UInt8)registerOffset value:(UInt32)value error:(NSError **)error
+- (BOOL)writeAccessPort:(UInt8)accessPort registerOffset:(UInt8)registerOffset value:(UInt32)value error:(NSError **)error
 {
 //    NSLog(@"write access port %02x = %08x", registerOffset, value);
-    if (![self accessPortBankSelect:registerOffset error:error]) {
+    if (![self accessPortBankSelect:accessPort registerOffset:registerOffset error:error]) {
         return NO;
     }
     if (![self writePort:SWDAccessPort registerOffset:registerOffset value:value error:error]) {
@@ -691,10 +697,10 @@ typedef enum {
 {
 //    NSLog(@"read memory %08x", address);
     BOOL (^block)(NSError **) = ^(NSError **error) {
-        if (![self writeAccessPort:SWD_AP_TAR value:address error:error]) {
+        if (![self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AP_TAR value:address error:error]) {
             return NO;
         }
-        return [self readAccessPort:SWD_AP_DRW value:value error:error];
+        return [self readAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AP_DRW value:value error:error];
     };
     return [self recoverAndRetry:block error:error];
 }
@@ -703,10 +709,10 @@ typedef enum {
 {
 //    NSLog(@"write memory %08x = %08x", address, value);
     BOOL (^block)(NSError **) = ^(NSError **error) {
-        if (![self writeAccessPort:SWD_AP_TAR value:address error:error]) {
+        if (![self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AP_TAR value:address error:error]) {
             return NO;
         }
-        return [self writeAccessPort:SWD_AP_DRW value:value error:error];
+        return [self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AP_DRW value:value error:error];
     };
     if (![self recoverAndRetry:block error:error]) {
         return NO;
@@ -766,10 +772,10 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
         return FDErrorReturn(error, @{@"reason": reason});
     }
     
-    if (![self writeAccessPort:SWD_AP_TAR value:address error:error]) {
+    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AP_TAR value:address error:error]) {
         return NO;
     }
-    if (![self accessPortBankSelect:SWD_AP_DRW error:error]) {
+    if (![self accessPortBankSelect:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AP_DRW error:error]) {
         return NO;
     }
     return [self setOverrunDetection:true error:error];
@@ -1094,7 +1100,7 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
 
     BOOL fast = NO;
     if (fast) {
-        if (![self accessPortBankSelect:0x00 error:error]) {
+        if (![self accessPortBankSelect:SWD_DP_SELECT_APSEL_APB_AP registerOffset:0x00 error:error]) {
             return NO;
         }
         if (![self setOverrunDetection:true error:error]) {
@@ -1382,9 +1388,9 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
     return YES;
 }
 
-- (BOOL)readAccessPortID:(UInt32 *)value error:(NSError **)error
+- (BOOL)readAccessPortID:(UInt8)accessPort value:(UInt32 *)value error:(NSError **)error
 {
-    return [self readAccessPort:SWD_AAP_IDR value:value error:error];
+    return [self readAccessPort:accessPort registerOffset:SWD_AP_IDR value:value error:error];
 }
 
 - (BOOL)initializeDebugPort:(NSError **)error
@@ -1431,7 +1437,7 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
     if (![self readDebugPortIDCode:&_dpid error:error]) {
         return NO;
     }
-    if (![self readAccessPortID:&_apid error:error]) {
+    if (![self readAccessPortID:SWD_DP_SELECT_APSEL_APB_AP value:&_apid error:error]) {
         return NO;
     }
 
@@ -1439,6 +1445,17 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
 }
 
 #define IDR_CODE(id) (((id) >> 17) & 0x7ff)
+
+#define NRF52_AP_REG_RESET 0x00
+#define NRF52_AP_REG_ERASEALL 0x04
+#define NRF52_AP_REG_ERASEALLSTATUS 0x08
+#define NRF52_AP_REG_APPROTECTSTATUS 0x0c
+#define NRF52_AP_REG_IDR 0xfc
+
+#define NRF52_CTRL_AP_ID 0x02880000
+
+#define SWD_NRF52_CTRL_AP_ERASE_TIMEOUT 10.0
+
 
 - (BOOL)isAuthenticationAccessPortActive:(BOOL *)active error:(NSError **)error
 {
@@ -1450,30 +1467,44 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
         NSString *reason = [NSString stringWithFormat:@"DPID 0x%08x not recognized", dpid];
         return FDErrorReturn(error, @{@"reason": reason});
     }
-    
+
+    // EFM32G
     uint32_t apid;
-    if (![self readAccessPortID:&apid error:error]) {
+    if (![self readAccessPortID:SWD_DP_SELECT_APSEL_APB_AP value:&apid error:error]) {
         return NO;
     }
     *active = IDR_CODE(apid) == IDR_CODE(SWD_AAP_ID);
+
+    // NRF52
+    if (![self readAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_IDR value:&apid error:error]) {
+        return NO;
+    }
+    if (IDR_CODE(apid) == IDR_CODE(NRF52_CTRL_AP_ID)) {
+        UInt32 value;
+        if (![self readAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_APPROTECTSTATUS value:&value error:error]) {
+            return NO;
+        }
+        *active = (value & 0x00000001) == 0;
+    }
+
     return YES;
 }
 
 #define SWD_AAP_ERASE_TIMEOUT 0.200 // erase takes 125 ms
 
-- (BOOL)authenticationAccessPortErase:(NSError **)error
+- (BOOL)authenticationAccessPortEraseEFM32G:(NSError **)error
 {
-    if (![self writeAccessPort:SWD_AAP_CMDKEY value:SWD_AAP_CMDKEY_WRITEEN error:error]) {
+    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AAP_CMDKEY value:SWD_AAP_CMDKEY_WRITEEN error:error]) {
         return NO;
     }
-    if (![self writeAccessPort:SWD_AAP_CMD value:SWD_AAP_CMD_DEVICEERASE error:error]) {
+    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AAP_CMD value:SWD_AAP_CMD_DEVICEERASE error:error]) {
         return NO;
     }
     NSDate *start = [NSDate date];
     do {
         [NSThread sleepForTimeInterval:0.025];
         uint32_t status;
-        if (![self readAccessPort:SWD_AAP_STATUS value:&status error:error]) {
+        if (![self readAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AAP_STATUS value:&status error:error]) {
             return NO;
         }
         if ((status & SWD_AAP_STATUS_ERASEBUSY) == 0) {
@@ -1483,14 +1514,65 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
     return FDErrorReturn(error, @{@"reason": @"timeout"});
 }
 
+- (BOOL)authenticationAccessPortEraseNRF52:(NSError **)error
+{
+    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_ERASEALL value:0x00000001 error:error]) { // erase all
+        return NO;
+    }
+    UInt32 value;
+    NSDate *start = [NSDate date];
+    do {
+        [NSThread sleepForTimeInterval:0.025];
+        if (![self readAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_ERASEALLSTATUS value:&value error:error]) {
+            return NO;
+        }
+        if ([[NSDate date] timeIntervalSinceDate:start] > SWD_NRF52_CTRL_AP_ERASE_TIMEOUT) {
+            return FDErrorReturn(error, @{@"reason": @"timeout"});
+        }
+    } while (value != 0);
+    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_ERASEALL value:0x00000000 error:error]) { // erase all off
+        return NO;
+    }
+    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_RESET value:0x00000001 error:error]) { // reset
+        return NO;
+    }
+    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_RESET value:0x00000000 error:error]) { // reset off
+        return NO;
+    }
+
+    return YES;
+}
+
+- (BOOL)authenticationAccessPortErase:(NSError **)error
+{
+    return [self authenticationAccessPortEraseNRF52:error];
+}
+
+- (BOOL)authenticationAccessPortResetEFM32G:(NSError **)error
+{
+    return [self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AAP_CMD value:SWD_AAP_CMD_SYSRESETREQ error:error];
+}
+
+- (BOOL)authenticationAccessPortResetNRF52:(NSError **)error
+{
+    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_RESET value:0x00000001 error:error]) { // reset
+        return NO;
+    }
+    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_NRF52_CTRL_AP registerOffset:NRF52_AP_REG_RESET value:0x00000000 error:error]) { // reset off
+        return NO;
+    }
+    return YES;
+}
+
 - (BOOL)authenticationAccessPortReset:(NSError **)error
 {
-    return [self writeAccessPort:SWD_AAP_CMD value:SWD_AAP_CMD_SYSRESETREQ error:error];
+    return [self authenticationAccessPortResetNRF52:error];
 }
 
 - (BOOL)initializeAccessPort:(NSError **)error
 {
-    if (![self writeAccessPort:SWD_AP_CSW
+    if (![self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP
+                registerOffset:SWD_AP_CSW
                          value:SWD_AP_CSW_DBGSWENABLE |
                                SWD_AP_CSW_MASTER_DEBUG |
                                SWD_AP_CSW_HPROT |
