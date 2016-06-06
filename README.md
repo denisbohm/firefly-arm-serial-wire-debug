@@ -2,7 +2,7 @@
 Firefly Design ARM Cortex Serial Wire Debug Framework
 Swift Friendly Objective-C
 
-Note that this replaces firefly-arm-swd (which is no longer being maintained)
+Note that this replaces firefly-arm-swd (which is no longer being maintained).
 
 Copyright and License
 ---------------------
