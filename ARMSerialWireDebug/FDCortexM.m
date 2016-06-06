@@ -31,42 +31,6 @@
     return self;
 }
 
-+ (NSString *)debugPortIDCodeDescription:(uint32_t)debugPortIDCode
-{
-    return [NSString stringWithFormat:@"IDCODE %08x", debugPortIDCode];
-}
-
-+ (NSString *)cpuIDDescription:(uint32_t)cpuID
-{
-    unsigned implementer = (cpuID >> 24) & 0xff;
-    unsigned partno = (cpuID >> 4) & 0xfff;
-    NSString *implementerName = @"unknown";
-    switch (implementer) {
-        case 0x41: implementerName = @"ARM"; break;
-    }
-    NSString *partnoName = @"";
-    switch (partno) {
-        case 0xC20: partnoName = @"Cortex-M0"; break;
-        case 0xC60: partnoName = @"Cortex-M0+"; break;
-        case 0xC21: partnoName = @"Cortex-M1"; break;
-        case 0xC23: partnoName = @"Cortex-M3"; break;
-        case 0xC24: partnoName = @"Cortex-M4"; break;
-    }
-    if ((cpuID & 0xfffffff0) == 0x410fc240) {
-        uint32_t n = cpuID & 0x0000000f;
-        return [NSString stringWithFormat:@"ARM Cortex-M4 r2p%d", n];
-    }
-    if ((cpuID & 0xfffffff0) == 0x412fc230) {
-        uint32_t n = cpuID & 0x0000000f;
-        return [NSString stringWithFormat:@"ARM Cortex-M3 r2p%d", n];
-    }
-    if ((cpuID & 0xfffffff0) == 0x410cc200) {
-        uint32_t n = cpuID & 0x0000000f;
-        return [NSString stringWithFormat:@"ARM Cortex-M0 r0p%d", n];
-    }
-    return [NSString stringWithFormat:@"CPUID = %08x", cpuID];
-}
-
 - (void)logDebugInfo
 {
     uint32_t dhcsr;

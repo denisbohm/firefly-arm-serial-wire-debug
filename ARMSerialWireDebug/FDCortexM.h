@@ -50,9 +50,6 @@
 @property (nonnull) FDAddressRange *heapRange;
 @property uint32_t breakLocation;
 
-+ (nonnull NSString *)debugPortIDCodeDescription:(uint32_t)debugPortIDCode;
-+ (nonnull NSString *)cpuIDDescription:(uint32_t)cpuID;
-
 - (BOOL)start:(UInt32)pc r0:(uint32_t)r0 r1:(uint32_t)r1 r2:(uint32_t)r2 r3:(uint32_t)r3 error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)waitForHalt:(NSTimeInterval)timeout resultR0:(nonnull UInt32 *)resultR0 error:(NSError * _Nullable * _Nullable)error;
 

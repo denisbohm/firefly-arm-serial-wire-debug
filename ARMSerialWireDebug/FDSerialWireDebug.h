@@ -194,4 +194,7 @@ typedef NS_ENUM(NSInteger, FDSerialWireDebugDirection) {
 - (BOOL)disableBreakpoint:(uint32_t)n error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)disableAllBreakpoints:(NSError * _Nullable * _Nullable)error;
 
++ (nonnull NSString *)debugPortIDCodeDescription:(uint32_t)debugPortIDCode;
++ (nonnull NSString *)cpuIDDescription:(uint32_t)cpuID;
+
 @end

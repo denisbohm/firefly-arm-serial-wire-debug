@@ -327,10 +327,10 @@ typedef NS_ENUM(NSInteger, SWDAck) {
 - (BOOL)readPort:(FDSerialWireDebugPort)port registerOffset:(UInt8)registerOffset value:(UInt32 *)value error:(NSError **)error
 {
 //    NSLog(@"read  %@ %02x", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset);
+    SWDAck ack = SWDAckOK;
     NSError *deepError;
     UInt8 request = [self encodeRequestPort:port direction:FDSerialWireDebugDirectionRead address:registerOffset];
     for (NSUInteger retry = 0; retry < _ackWaitRetryCount; ++retry) {
-        SWDAck ack;
         if (![self request:request ack:&ack error:&deepError]) {
             continue;
         }
@@ -354,9 +354,12 @@ typedef NS_ENUM(NSInteger, SWDAck) {
             [self turnToWriteAndSkip];
         }
         if (ack != SWDAckWait) {
-            NSString *reason = [NSString stringWithFormat:@"unexpected ack %u", ack];
+            NSString *reason = [NSString stringWithFormat:@"unexpected ack %ld", (long)ack];
             return FDErrorReturn(error, @{@"reason": reason});
         }
+    }
+    if (ack == SWDAckWait) {
+        return FDErrorReturn(error, @{@"reason": @"too many ack wait retries"});
     }
     if (error != nil) {
         *error = deepError;
@@ -1112,8 +1115,8 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
 
 - (BOOL)initializeDebugPort:(NSError **)error
 {
-    UInt32 dummy;
-    if (![self readDebugPort:SWD_DP_STAT value:&dummy error:error]) {
+    UInt32 stat;
+    if (![self readDebugPort:SWD_DP_STAT value:&stat error:error]) {
         return NO;
     }
     
@@ -1127,26 +1130,27 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
         return NO;
     }
 
-    if (![self readDebugPort:SWD_DP_STAT value:&dummy error:error]) {
+    if (![self readDebugPort:SWD_DP_STAT value:&stat error:error]) {
         return NO;
     }
 
     if (![self writeDebugPort:SWD_DP_CTRL value:SWD_DP_CTRL_CDBGPWRUPREQ | SWD_DP_CTRL_CSYSPWRUPREQ error:error]) {
         return NO;
     }
-    
+
     if (![self waitForDebugPortStatus:SWD_DP_CTRL_CSYSPWRUPACK error:error]) {
         return NO;
     }
+
     if (![self waitForDebugPortStatus:SWD_DP_CTRL_CDBGPWRUPACK error:error]) {
         return NO;
     }
-    
+
     if (![self writeDebugPort:SWD_DP_SELECT value:0 error:error]) {
         return NO;
     }
 
-    if (![self readDebugPort:SWD_DP_STAT value:&dummy error:error]) {
+    if (![self readDebugPort:SWD_DP_STAT value:&stat error:error]) {
         return NO;
     }
     
@@ -1176,6 +1180,42 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
     }
     
     return [self checkDebugPortStatus:error];
+}
+
++ (NSString *)debugPortIDCodeDescription:(uint32_t)debugPortIDCode
+{
+    return [NSString stringWithFormat:@"IDCODE %08x", debugPortIDCode];
+}
+
++ (NSString *)cpuIDDescription:(uint32_t)cpuID
+{
+    unsigned implementer = (cpuID >> 24) & 0xff;
+    unsigned partno = (cpuID >> 4) & 0xfff;
+    NSString *implementerName = @"unknown";
+    switch (implementer) {
+        case 0x41: implementerName = @"ARM"; break;
+    }
+    NSString *partnoName = @"";
+    switch (partno) {
+        case 0xC20: partnoName = @"Cortex-M0"; break;
+        case 0xC60: partnoName = @"Cortex-M0+"; break;
+        case 0xC21: partnoName = @"Cortex-M1"; break;
+        case 0xC23: partnoName = @"Cortex-M3"; break;
+        case 0xC24: partnoName = @"Cortex-M4"; break;
+    }
+    if ((cpuID & 0xfffffff0) == 0x410fc240) {
+        uint32_t n = cpuID & 0x0000000f;
+        return [NSString stringWithFormat:@"ARM Cortex-M4 r2p%d", n];
+    }
+    if ((cpuID & 0xfffffff0) == 0x412fc230) {
+        uint32_t n = cpuID & 0x0000000f;
+        return [NSString stringWithFormat:@"ARM Cortex-M3 r2p%d", n];
+    }
+    if ((cpuID & 0xfffffff0) == 0x410cc200) {
+        uint32_t n = cpuID & 0x0000000f;
+        return [NSString stringWithFormat:@"ARM Cortex-M0 r0p%d", n];
+    }
+    return [NSString stringWithFormat:@"CPUID = %08x", cpuID];
 }
 
 @end
