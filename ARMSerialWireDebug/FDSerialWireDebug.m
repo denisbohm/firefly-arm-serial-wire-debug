@@ -268,11 +268,11 @@
     return request;
 }
 
-typedef enum {
-    SWDOKAck = 0b001,
-    SWDWaitAck = 0b010,
-    SWDFaultAck = 0b100,
-} SWDAck;
+typedef NS_ENUM(NSInteger, SWDAck) {
+    SWDAckOK = 0b001,
+    SWDAckWait = 0b010,
+    SWDAckFault = 0b100,
+};
 
 - (void)shiftInTurnAndAck
 {
@@ -340,7 +340,7 @@ typedef enum {
             }
             [self turnToWriteAndSkip];
         }
-        if (ack == SWDOKAck) {
+        if (ack == SWDAckOK) {
             if (!_overrunDetectionEnabled) {
                 if (![self readUInt32:value error:&deepError]) {
                     continue;
@@ -353,7 +353,7 @@ typedef enum {
         if (!_overrunDetectionEnabled) {
             [self turnToWriteAndSkip];
         }
-        if (ack != SWDWaitAck) {
+        if (ack != SWDAckWait) {
             NSString *reason = [NSString stringWithFormat:@"unexpected ack %u", ack];
             return FDErrorReturn(error, @{@"reason": reason});
         }
@@ -367,10 +367,10 @@ typedef enum {
 - (BOOL)writePort:(FDSerialWireDebugPort)port registerOffset:(UInt8)registerOffset value:(UInt32)value error:(NSError **)error
 {
 //    NSLog(@"write %@ %02x = %08x", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset, value);
+    SWDAck ack = SWDAckOK;
     NSError *deepError;
     UInt8 request = [self encodeRequestPort:port direction:FDSerialWireDebugDirectionWrite address:registerOffset];
     for (NSUInteger retry = 0; retry < _ackWaitRetryCount; ++retry) {
-        SWDAck ack;
         if (![self request:request ack:&ack error:&deepError]) {
             continue;
         }
@@ -378,17 +378,20 @@ typedef enum {
         if (_overrunDetectionEnabled) {
             [self writeUInt32:value];
         }
-        if (ack == SWDOKAck) {
+        if (ack == SWDAckOK) {
             if (!_overrunDetectionEnabled) {
                 [self writeUInt32:value];
             }
 //            NSLog(@"write %@ %02x = %08x done", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset, value);
             return YES;
         }
-        if (ack != SWDWaitAck) {
-            NSString *reason = [NSString stringWithFormat:@"unexpected ack %u writing to port %ld, register offset %d, value 0x%08x", ack, (long)port, registerOffset, value];
+        if (ack != SWDAckWait) {
+            NSString *reason = [NSString stringWithFormat:@"unexpected ack %ld writing to port %ld, register offset %d, value 0x%08x", (long)ack, (long)port, registerOffset, value];
             return FDErrorReturn(error, @{@"reason": reason});
         }
+    }
+    if (ack == SWDAckWait) {
+        return FDErrorReturn(error, @{@"reason": @"too many ack wait retries"});
     }
     if (error != nil) {
         *error = deepError;
