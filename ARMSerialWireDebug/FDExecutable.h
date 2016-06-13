@@ -33,22 +33,22 @@ typedef NS_ENUM(NSInteger, FDExecutableSectionType) {
 
 @interface FDExecutable : NSObject
 
-@property (nonnull) NSArray *sections;
-@property (nonnull) NSMutableDictionary *functions;
-@property (nonnull) NSMutableDictionary *globals;
+@property (nonnull) NSArray<FDExecutableSection *> *sections;
+@property (nonnull) NSMutableDictionary<NSString *, FDExecutableFunction *> *functions;
+@property (nonnull) NSMutableDictionary<NSString *, FDExecutableSymbol *> *globals;
 
 - (BOOL)load:(nonnull NSString *)filename error:(NSError * _Nullable * _Nullable)error;
 
 // combine sections withing the given address range into sections that
 // start and stop on page boundaries
-- (nonnull NSArray *)combineSectionsType:(FDExecutableSectionType)type
-                                 address:(uint32_t)address
-                                  length:(uint32_t)length
-                                pageSize:(uint32_t)pageSize;
+- (nonnull NSArray<FDExecutableSection *> *)combineSectionsType:(FDExecutableSectionType)type
+                                                        address:(uint32_t)address
+                                                         length:(uint32_t)length
+                                                       pageSize:(uint32_t)pageSize;
 
-- (nonnull NSArray *)combineAllSectionsType:(FDExecutableSectionType)type
-                                    address:(uint32_t)address
-                                     length:(uint32_t)length
-                                   pageSize:(uint32_t)pageSize;
+- (nonnull NSArray<FDExecutableSection *> *)combineAllSectionsType:(FDExecutableSectionType)type
+                                                           address:(uint32_t)address
+                                                            length:(uint32_t)length
+                                                          pageSize:(uint32_t)pageSize;
 
 @end
