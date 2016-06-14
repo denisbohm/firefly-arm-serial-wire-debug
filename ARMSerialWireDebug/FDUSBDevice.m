@@ -40,11 +40,15 @@
 
 - (BOOL)open:(NSError **)error
 {
+    if (_deviceInterface == nil) {
+        return FDErrorReturn(error, nil);
+    }
+
     kern_return_t kernReturn = (*_deviceInterface)->USBDeviceOpen(_deviceInterface);
     if (kernReturn != kIOReturnSuccess) {
         FDLog(@"failure opening USB device: %08x", kernReturn);
-        (void) (*_deviceInterface)->Release(_deviceInterface);
-        self.deviceInterface = NULL;
+//        (void) (*_deviceInterface)->Release(_deviceInterface);
+//        self.deviceInterface = NULL;
         return FDErrorReturn(error, nil);
     }
     
