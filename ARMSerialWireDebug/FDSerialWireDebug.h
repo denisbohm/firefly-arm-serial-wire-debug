@@ -8,8 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-@class FDLogger;
-@class FDSerialEngine;
+#import "FDLogger.h"
+#import "FDSerialWire.h"
 
 #define FDSerialWireDebugBit(n) (1 << (n))
 
@@ -114,21 +114,12 @@ typedef NS_ENUM(NSInteger, FDSerialWireDebugDirection) {
 
 @interface FDSerialWireDebug : NSObject
 
-@property (nullable) FDSerialEngine *serialEngine;
+@property (nullable) id<FDSerialWire> serialWire;
 @property (nonnull) FDLogger *logger;
-
-@property UInt16 clockDivisor;
 
 @property BOOL maskInterrupts;
 
 @property BOOL minimalDebugPort;
-
-- (BOOL)initialize:(NSError * _Nullable * _Nullable)error;
-
-- (BOOL)getGpioDetect:(nonnull BOOL *)detect error:(NSError * _Nullable * _Nullable)error;
-
-- (void)setGpioIndicator:(BOOL)value;
-- (void)setGpioReset:(BOOL)value;
 
 - (void)detachDebugPort;
 - (void)resetDebugPort;

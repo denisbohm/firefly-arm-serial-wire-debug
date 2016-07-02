@@ -13,15 +13,6 @@
 
 @interface FDSerialWireDebug ()
 
-@property UInt16 gpioInputs;
-@property UInt16 gpioOutputs;
-@property UInt16 gpioDirections;
-
-@property NSUInteger gpioWriteBit;
-@property NSUInteger gpioResetBit;
-@property NSUInteger gpioIndicatorBit;
-@property NSUInteger gpioDetectBit;
-
 @property NSUInteger ackWaitRetryCount;
 @property NSUInteger debugPortStatusRetryCount;
 @property NSUInteger registerRetryCount;
@@ -54,16 +45,7 @@
 {
     if (self = [super init]) {
         _logger = [[FDLogger alloc] init];
-        
-        _clockDivisor = 5;
-        
-        _gpioDirections = 0b0000111100011011;
-        _gpioOutputs = 0b0000001000000000;
-        _gpioWriteBit = 3;
-        _gpioResetBit = 9;
-        _gpioIndicatorBit = 11;
-        _gpioDetectBit = 5;
-        
+
         _ackWaitRetryCount = 3;
         _debugPortStatusRetryCount = 3;
         _registerRetryCount = 3;
@@ -75,134 +57,26 @@
     return self;
 }
 
-- (BOOL)initialize:(NSError **)error
-{
-    if (![_serialEngine read:error]) {
-        FDLog(@"unexpected error: %@", error);
-    }
-    
-    [_serialEngine setLoopback:false];
-    [_serialEngine setClockDivisor:_clockDivisor];
-    if (![_serialEngine write:error]) {
-        return NO;
-    }
-    
-    if (![_serialEngine setLatencyTimer:2 error:error]) {
-        return NO;
-    }
-    if (![_serialEngine setMPSEEBitMode:error]) {
-        return NO;
-    }
-    if (![_serialEngine reset:error]) {
-        return NO;
-    }
-    
-    [_serialEngine setLowByte:_gpioOutputs direction:_gpioDirections];
-    [_serialEngine setHighByte:_gpioOutputs >> 8 direction:_gpioDirections >> 8];
-    [_serialEngine sendImmediate];
-    if (![_serialEngine write:error]) {
-        return NO;
-    }
-
-    if (![self getGpios:error]) {
-        return NO;
-    }
-
-    // reading detect seems flakey, the following seems to make it stable -denis
-    [self setGpioBit:_gpioWriteBit value:true];
-    if (![self getGpios:error]) {
-        return NO;
-    }
-
-    return YES;
-}
-
-- (BOOL)getGpios:(NSError **)error
-{
-    [_serialEngine getLowByte];
-    [_serialEngine getHighByte];
-    [_serialEngine sendImmediate];
-    if (![_serialEngine write:error]) {
-        return NO;
-    }
-    NSData *data = [_serialEngine read:2 error:error];
-    if (data == nil) {
-        return NO;
-    }
-    UInt8 *bytes = (UInt8 *)data.bytes;
-    _gpioInputs = (bytes[1] << 8) | bytes[0];
-    return YES;
-}
-
-- (BOOL)getGpioDetect:(BOOL *)detect error:(NSError **)error
-{
-    if (![self getGpios:error]) {
-        return NO;
-    }
-    *detect = _gpioInputs & (1 << _gpioDetectBit) ? NO : YES;
-    return YES;
-}
-
-- (void)setGpioBit:(NSUInteger)bit value:(BOOL)value
-{
-    UInt16 mask = 1 << bit;
-    UInt16 outputs = _gpioOutputs;
-    if (value) {
-        outputs |= mask;
-    } else {
-        outputs &= ~mask;
-    }
-    if (outputs == _gpioOutputs) {
-        return;
-    }
-    _gpioOutputs = outputs;
-    if (mask & 0x00ff) {
-        [_serialEngine setLowByte:_gpioOutputs direction:_gpioDirections];
-    } else {
-        [_serialEngine setHighByte:_gpioOutputs >> 8 direction:_gpioDirections >> 8];
-    }
-}
-
-- (void)setGpioIndicator:(BOOL)value
-{
-    [self setGpioBit:_gpioIndicatorBit value:value];
-}
-
-- (void)setGpioReset:(BOOL)value
-{
-    [self setGpioBit:_gpioResetBit value:value];
-}
-
-- (void)turnToWrite
-{
-    [self setGpioBit:_gpioWriteBit value:true];
-}
-
-- (void)turnToRead
-{
-    [self setGpioBit:_gpioWriteBit value:false];
-}
-
 - (void)skip:(NSUInteger)n
 {
-    [_serialEngine shiftOutBitsLSBFirstNegativeEdge:0 bitCount:n];
+    [_serialWire shiftOutBits:0 bitCount:n];
 }
 
 - (void)turnToWriteAndSkip
 {
-    [self turnToWrite];
+    [_serialWire turnToWrite];
     [self skip:1];
 }
 
 - (void)turnToReadAndSkip
 {
-    [self turnToRead];
+    [_serialWire turnToRead];
     [self skip:1];
 }
 
 - (void)detachDebugPort
 {
-    [self turnToWrite];
+    [_serialWire turnToWrite];
     UInt8 bytes[] = {
         0xff,
         0xff,
@@ -212,12 +86,12 @@
         0xff,
         0xff,
     };
-    [_serialEngine shiftOutDataLSBFirstNegativeEdge:[NSData dataWithBytes:bytes length:sizeof(bytes)]];
+    [_serialWire shiftOutData:[NSData dataWithBytes:bytes length:sizeof(bytes)]];
 }
 
 - (void)resetDebugPort
 {
-    [self turnToWrite];
+    [_serialWire turnToWrite];
     UInt8 bytes[] = {
         0xff,
         0xff,
@@ -239,7 +113,7 @@
         0xff,
         0x00,
     };
-    [_serialEngine shiftOutDataLSBFirstNegativeEdge:[NSData dataWithBytes:bytes length:sizeof(bytes)]];
+    [_serialWire shiftOutData:[NSData dataWithBytes:bytes length:sizeof(bytes)]];
 }
 
 - (UInt8)getParityUInt8:(UInt8)v {
@@ -276,7 +150,7 @@ typedef NS_ENUM(NSInteger, SWDAck) {
 
 - (void)shiftInTurnAndAck
 {
-    [_serialEngine shiftInBitsLSBFirstPositiveEdge:4];
+    [_serialWire shiftInBits:4];
 }
 
 - (SWDAck)getTurnAndAck:(NSData *)data
@@ -286,11 +160,11 @@ typedef NS_ENUM(NSInteger, SWDAck) {
 
 - (BOOL)request:(UInt8)request ack:(SWDAck *)ack error:(NSError **)error
 {
-    [_serialEngine shiftOutBitsLSBFirstNegativeEdge:request bitCount:8];
-    [self turnToRead];
+    [_serialWire shiftOutBits:request bitCount:8];
+    [_serialWire turnToRead];
     [self shiftInTurnAndAck];
-    [_serialEngine sendImmediate];
-    NSData *data = [_serialEngine read:1 error:error];
+//    [_serialEngine sendImmediate];
+    NSData *data = [_serialWire read:1 error:error];
     if (data == nil) {
         return NO;
     }
@@ -300,10 +174,10 @@ typedef NS_ENUM(NSInteger, SWDAck) {
 
 - (BOOL)readUInt32:(UInt32 *)value error:(NSError **)error
 {
-    [_serialEngine shiftInDataLSBFirstPositiveEdge:4];
-    [_serialEngine shiftInBitsLSBFirstPositiveEdge:1]; // parity
-    [_serialEngine sendImmediate];
-    NSData *data = [_serialEngine read:5 error:error];
+    [_serialWire shiftInData:4];
+    [_serialWire shiftInBits:1]; // parity
+//    [_serialEngine sendImmediate];
+    NSData *data = [_serialWire read:5 error:error];
     if (data == nil) {
         return NO;
     }
@@ -319,9 +193,9 @@ typedef NS_ENUM(NSInteger, SWDAck) {
 - (void)writeUInt32:(UInt32)value
 {
     UInt8 bytes[] = {value, value >> 8, value >> 16, value >> 24};
-    [_serialEngine shiftOutDataLSBFirstNegativeEdge:[NSData dataWithBytes:bytes length:sizeof(bytes)]];
+    [_serialWire shiftOutData:[NSData dataWithBytes:bytes length:sizeof(bytes)]];
     UInt8 parity = [self getParityUInt32:value];
-    [_serialEngine shiftOutBitsLSBFirstNegativeEdge:parity bitCount:1];
+    [_serialWire shiftOutBits:parity bitCount:1];
 }
 
 - (BOOL)readPort:(FDSerialWireDebugPort)port registerOffset:(UInt8)registerOffset value:(UInt32 *)value error:(NSError **)error
@@ -542,7 +416,7 @@ typedef NS_ENUM(NSInteger, SWDAck) {
 
 - (void)flush
 {
-    [_serialEngine shiftOutBitsLSBFirstNegativeEdge:0x00 bitCount:8];
+    [_serialWire shiftOutBits:0x00 bitCount:8];
 }
 
 - (BOOL)writeAccessPort:(UInt8)accessPort registerOffset:(UInt8)registerOffset value:(UInt32)value error:(NSError **)error
@@ -687,8 +561,8 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
 
 - (void)requestWriteSkip:(UInt8)request value:(UInt32)value
 {
-    [_serialEngine shiftOutBitsLSBFirstNegativeEdge:request bitCount:8];
-    [self turnToRead];
+    [_serialWire shiftOutBits:request bitCount:8];
+    [_serialWire turnToRead];
     [self skip:4]; // skip over turn and ack
     [self turnToWriteAndSkip];
     [self writeUInt32:value];
@@ -722,16 +596,16 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
     uint32_t words = length / 4;
     // note: 1 extra iteration because of 1 read delay in getting data out
     for (NSUInteger i = 0; i <= words; ++i) {
-        [_serialEngine shiftOutBitsLSBFirstNegativeEdge:request bitCount:8];
-        [self turnToRead];
+        [_serialWire shiftOutBits:request bitCount:8];
+        [_serialWire turnToRead];
         [self skip:4]; // skip over turn and ack
-        [_serialEngine shiftInDataLSBFirstPositiveEdge:4]; // data
-        [_serialEngine shiftInBitsLSBFirstPositiveEdge:1]; // parity
+        [_serialWire shiftInData:4]; // data
+        [_serialWire shiftInBits:1]; // parity
         [self turnToWriteAndSkip];
     }
-    [_serialEngine sendImmediate];
+//    [_serialEngine sendImmediate];
     
-    NSData *output = [_serialEngine read:5 * (words + 1) error:error];
+    NSData *output = [_serialWire read:5 * (words + 1) error:error];
     if (output == nil) {
         return nil;
     }
@@ -744,7 +618,7 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
         BOOL actual = [self getParityUInt32:value];
         if (parity != actual) { // This happens inconsistently... -denis
              // flush any pending data... -denis
-            if (![_serialEngine read:error]) {
+            if (![_serialWire read:error]) {
                 return nil;
             }
             FDErrorReturn(error, @{@"reason": @"parity mismatch"});

@@ -37,6 +37,9 @@
 		92581B9D1D04D34400A546CA /* FDFireflyFlashEFM32.m in Sources */ = {isa = PBXBuildFile; fileRef = 92581B9B1D04D34400A546CA /* FDFireflyFlashEFM32.m */; };
 		925F9F8A1CFF3EE200D1C1FE /* FDExecutable.h in Headers */ = {isa = PBXBuildFile; fileRef = 925F9F881CFF3EE200D1C1FE /* FDExecutable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		925F9F8B1CFF3EE200D1C1FE /* FDExecutable.m in Sources */ = {isa = PBXBuildFile; fileRef = 925F9F891CFF3EE200D1C1FE /* FDExecutable.m */; };
+		92EA8D191D231B3F00A30A8E /* FDSerialWire.h in Headers */ = {isa = PBXBuildFile; fileRef = 92EA8D171D231B3F00A30A8E /* FDSerialWire.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		92EA8D1D1D231B8400A30A8E /* FDSerialWireEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = 92EA8D1B1D231B8400A30A8E /* FDSerialWireEngine.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		92EA8D1E1D231B8400A30A8E /* FDSerialWireEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 92EA8D1C1D231B8400A30A8E /* FDSerialWireEngine.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,6 +86,9 @@
 		92581B9B1D04D34400A546CA /* FDFireflyFlashEFM32.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDFireflyFlashEFM32.m; sourceTree = "<group>"; };
 		925F9F881CFF3EE200D1C1FE /* FDExecutable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDExecutable.h; sourceTree = "<group>"; };
 		925F9F891CFF3EE200D1C1FE /* FDExecutable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDExecutable.m; sourceTree = "<group>"; };
+		92EA8D171D231B3F00A30A8E /* FDSerialWire.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDSerialWire.h; sourceTree = "<group>"; };
+		92EA8D1B1D231B8400A30A8E /* FDSerialWireEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDSerialWireEngine.h; sourceTree = "<group>"; };
+		92EA8D1C1D231B8400A30A8E /* FDSerialWireEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDSerialWireEngine.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -148,8 +154,11 @@
 				920799121CFE320C001A138A /* FDLogger.m */,
 				920799151CFE4E0E001A138A /* FDSerialEngine.h */,
 				920799161CFE4E0E001A138A /* FDSerialEngine.m */,
+				92EA8D171D231B3F00A30A8E /* FDSerialWire.h */,
 				9207991D1CFE5586001A138A /* FDSerialWireDebug.h */,
 				9207991E1CFE5586001A138A /* FDSerialWireDebug.m */,
+				92EA8D1B1D231B8400A30A8E /* FDSerialWireEngine.h */,
+				92EA8D1C1D231B8400A30A8E /* FDSerialWireEngine.m */,
 				920799091CFE2FD7001A138A /* FDUSBDevice.h */,
 				9207990A1CFE2FD7001A138A /* FDUSBDevice.m */,
 				9207990B1CFE2FD7001A138A /* FDUSBMonitor.h */,
@@ -187,6 +196,8 @@
 				920799131CFE320C001A138A /* FDLogger.h in Headers */,
 				920799241CFE7B9A001A138A /* FDCortexM.h in Headers */,
 				9207990D1CFE2FD7001A138A /* FDUSBDevice.h in Headers */,
+				92EA8D191D231B3F00A30A8E /* FDSerialWire.h in Headers */,
+				92EA8D1D1D231B8400A30A8E /* FDSerialWireEngine.h in Headers */,
 				9207991B1CFE50DC001A138A /* FDError.h in Headers */,
 				92384D3B1CFF84B3005622AA /* FDFireflyFlashNRF5.h in Headers */,
 			);
@@ -297,6 +308,7 @@
 				920799101CFE2FD7001A138A /* FDUSBMonitor.m in Sources */,
 				920799141CFE320C001A138A /* FDLogger.m in Sources */,
 				920799251CFE7B9A001A138A /* FDCortexM.m in Sources */,
+				92EA8D1E1D231B8400A30A8E /* FDSerialWireEngine.m in Sources */,
 				920799181CFE4E0E001A138A /* FDSerialEngine.m in Sources */,
 				925F9F8B1CFF3EE200D1C1FE /* FDExecutable.m in Sources */,
 				920799201CFE5586001A138A /* FDSerialWireDebug.m in Sources */,
