@@ -175,6 +175,7 @@
 
 - (NSData *)read:(NSUInteger)byteCount error:(NSError * _Nullable * _Nullable)error
 {
+    [_serialEngine sendImmediate];
     return [_serialEngine read:(UInt32)byteCount error:error];
 }
 

@@ -163,7 +163,6 @@ typedef NS_ENUM(NSInteger, SWDAck) {
     [_serialWire shiftOutBits:request bitCount:8];
     [_serialWire turnToRead];
     [self shiftInTurnAndAck];
-//    [_serialEngine sendImmediate];
     NSData *data = [_serialWire read:1 error:error];
     if (data == nil) {
         return NO;
@@ -176,7 +175,6 @@ typedef NS_ENUM(NSInteger, SWDAck) {
 {
     [_serialWire shiftInData:4];
     [_serialWire shiftInBits:1]; // parity
-//    [_serialEngine sendImmediate];
     NSData *data = [_serialWire read:5 error:error];
     if (data == nil) {
         return NO;
@@ -603,7 +601,6 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
         [_serialWire shiftInBits:1]; // parity
         [self turnToWriteAndSkip];
     }
-//    [_serialEngine sendImmediate];
     
     NSData *output = [_serialWire read:5 * (words + 1) error:error];
     if (output == nil) {
