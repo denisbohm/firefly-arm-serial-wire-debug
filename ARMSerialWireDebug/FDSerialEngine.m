@@ -202,7 +202,7 @@
     return [data subdataWithRange:NSMakeRange(2, data.length - 2)];
 }
 
-- (NSData *)read:(UInt32)length error:(NSError **)error
+- (NSData *)readWithLength:(UInt32)length error:(NSError **)error
 {
     if (![self write:error]) {
         return nil;

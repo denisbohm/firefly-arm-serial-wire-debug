@@ -26,7 +26,8 @@ FOUNDATION_EXPORT const unsigned char ARMSerialWireDebugVersionString[];
 #import <ARMSerialWireDebug/FDLogger.h>
 #import <ARMSerialWireDebug/FDSerialEngine.h>
 #import <ARMSerialWireDebug/FDSerialWire.h>
-#import <ARMSerialWireDebug/FDSerialWireEngine.h>
 #import <ARMSerialWireDebug/FDSerialWireDebug.h>
+#import <ARMSerialWireDebug/FDSerialWireEngine.h>
 #import <ARMSerialWireDebug/FDUSBDevice.h>
 #import <ARMSerialWireDebug/FDUSBMonitor.h>
+#import <ARMSerialWireDebug/FDUSBPort.h>

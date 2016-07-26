@@ -23,7 +23,7 @@
 - (void)shiftInData:(NSUInteger)byteCount;
 
 - (BOOL)write:(NSError * _Nullable * _Nullable)error;
-- (nullable NSData *)read:(NSUInteger)byteCount error:(NSError * _Nullable * _Nullable)error;
+- (nullable NSData *)readWithByteCount:(NSUInteger)byteCount error:(NSError * _Nullable * _Nullable)error;
 - (nullable NSData *)read:(NSError * _Nullable * _Nullable)error;
 
 @end

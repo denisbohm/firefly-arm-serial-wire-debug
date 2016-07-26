@@ -98,7 +98,7 @@
     return [data subdataWithRange:NSMakeRange(2, data.length - 2)];
 }
 
-- (NSData *)read:(NSUInteger)length error:(NSError **)error
+- (NSData *)readWithLength:(NSUInteger)length error:(NSError **)error
 {
     if (![self write:error]) {
         return nil;

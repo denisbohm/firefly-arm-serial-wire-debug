@@ -35,7 +35,7 @@
 - (void)shiftInDataLSBFirstPositiveEdge:(NSUInteger)byteCount;
 
 - (BOOL)write:(NSError * _Nullable * _Nullable)error;
-- (nullable NSData *)read:(UInt32)length error:(NSError * _Nullable * _Nullable)error;
+- (nullable NSData *)readWithLength:(UInt32)length error:(NSError * _Nullable * _Nullable)error;
 - (nullable NSData *)read:(NSError * _Nullable * _Nullable)error;
 
 @end

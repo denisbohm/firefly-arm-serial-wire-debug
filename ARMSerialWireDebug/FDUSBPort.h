@@ -17,7 +17,7 @@
 
 - (void)append:(nonnull NSData *)data;
 - (BOOL)write:(NSError * _Nullable * _Nullable)error;
-- (nullable NSData *)read:(NSUInteger)length error:(NSError * _Nullable * _Nullable)error;
+- (nullable NSData *)readWithLength:(NSUInteger)length error:(NSError * _Nullable * _Nullable)error;
 - (nullable NSData *)read:(NSError * _Nullable * _Nullable)error;
 
 @end

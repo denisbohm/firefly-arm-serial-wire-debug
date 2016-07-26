@@ -90,7 +90,7 @@
     if (![_serialEngine write:error]) {
         return NO;
     }
-    NSData *data = [_serialEngine read:2 error:error];
+    NSData *data = [_serialEngine readWithLength:2 error:error];
     if (data == nil) {
         return NO;
     }
@@ -173,10 +173,10 @@
     return [_serialEngine write:error];
 }
 
-- (NSData *)read:(NSUInteger)byteCount error:(NSError * _Nullable * _Nullable)error
+- (NSData *)readWithByteCount:(NSUInteger)byteCount error:(NSError * _Nullable * _Nullable)error
 {
     [_serialEngine sendImmediate];
-    return [_serialEngine read:(UInt32)byteCount error:error];
+    return [_serialEngine readWithLength:(UInt32)byteCount error:error];
 }
 
 - (NSData *)read:(NSError * _Nullable * _Nullable)error
