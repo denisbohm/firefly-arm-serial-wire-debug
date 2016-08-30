@@ -299,7 +299,7 @@ typedef NS_ENUM(NSInteger, SWDAck) {
 
 - (BOOL)waitForDebugPortStatus:(UInt32)mask error:(NSError **)error
 {
-    for (NSUInteger retry = 0; retry < _debugPortStatusRetryCount; ++ retry) {
+    for (NSUInteger retry = 0; retry < _debugPortStatusRetryCount; ++retry) {
         UInt32 status;
         if (![self readDebugPort:SWD_DP_STAT value:&status error:error]) {
             return NO;
@@ -568,6 +568,11 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
 
 - (BOOL)writeMemoryTransfer:(UInt32)address data:(NSData *)data error:(NSError **)error
 {
+    if ([_serialWire conformsToProtocol:@protocol(FDSerialWireDebugTransfer)]) {
+        id<FDSerialWireDebugTransfer> transfer = (id<FDSerialWireDebugTransfer>)_serialWire;
+        return [transfer writeMemory:address data:data error:error];
+    }
+
     if (![self beforeMemoryTransfer:address length:data.length error:error]) {
         return NO;
     }
@@ -584,6 +589,11 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
 
 - (NSData *)readMemoryTransfer:(UInt32)address length:(UInt32)length error:(NSError **)error
 {
+    if ([_serialWire conformsToProtocol:@protocol(FDSerialWireDebugTransfer)]) {
+        id<FDSerialWireDebugTransfer> transfer = (id<FDSerialWireDebugTransfer>)_serialWire;
+        return [transfer readMemory:address length:length error:error];
+    }
+
     if (![self beforeMemoryTransfer:address length:length error:error]) {
         return nil;
     }
