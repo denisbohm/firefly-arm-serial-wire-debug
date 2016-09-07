@@ -39,6 +39,8 @@
 		92581B9D1D04D34400A546CA /* FDFireflyFlashEFM32.m in Sources */ = {isa = PBXBuildFile; fileRef = 92581B9B1D04D34400A546CA /* FDFireflyFlashEFM32.m */; };
 		925F9F8A1CFF3EE200D1C1FE /* FDExecutable.h in Headers */ = {isa = PBXBuildFile; fileRef = 925F9F881CFF3EE200D1C1FE /* FDExecutable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		925F9F8B1CFF3EE200D1C1FE /* FDExecutable.m in Sources */ = {isa = PBXBuildFile; fileRef = 925F9F891CFF3EE200D1C1FE /* FDExecutable.m */; };
+		92BBBAF81D805DB700EF135F /* FDCryptography.h in Headers */ = {isa = PBXBuildFile; fileRef = 92BBBAF61D805DB700EF135F /* FDCryptography.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		92BBBAF91D805DB700EF135F /* FDCryptography.m in Sources */ = {isa = PBXBuildFile; fileRef = 92BBBAF71D805DB700EF135F /* FDCryptography.m */; };
 		92EA8D191D231B3F00A30A8E /* FDSerialWire.h in Headers */ = {isa = PBXBuildFile; fileRef = 92EA8D171D231B3F00A30A8E /* FDSerialWire.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		92EA8D1D1D231B8400A30A8E /* FDSerialWireEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = 92EA8D1B1D231B8400A30A8E /* FDSerialWireEngine.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		92EA8D1E1D231B8400A30A8E /* FDSerialWireEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 92EA8D1C1D231B8400A30A8E /* FDSerialWireEngine.m */; };
@@ -90,6 +92,8 @@
 		92581B9B1D04D34400A546CA /* FDFireflyFlashEFM32.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDFireflyFlashEFM32.m; sourceTree = "<group>"; };
 		925F9F881CFF3EE200D1C1FE /* FDExecutable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDExecutable.h; sourceTree = "<group>"; };
 		925F9F891CFF3EE200D1C1FE /* FDExecutable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDExecutable.m; sourceTree = "<group>"; };
+		92BBBAF61D805DB700EF135F /* FDCryptography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDCryptography.h; sourceTree = "<group>"; };
+		92BBBAF71D805DB700EF135F /* FDCryptography.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDCryptography.m; sourceTree = "<group>"; };
 		92EA8D171D231B3F00A30A8E /* FDSerialWire.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDSerialWire.h; sourceTree = "<group>"; };
 		92EA8D1B1D231B8400A30A8E /* FDSerialWireEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDSerialWireEngine.h; sourceTree = "<group>"; };
 		92EA8D1C1D231B8400A30A8E /* FDSerialWireEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDSerialWireEngine.m; sourceTree = "<group>"; };
@@ -140,6 +144,8 @@
 			isa = PBXGroup;
 			children = (
 				92008A751CFE2E3A00AFDF20 /* ARMSerialWireDebug.h */,
+				92BBBAF61D805DB700EF135F /* FDCryptography.h */,
+				92BBBAF71D805DB700EF135F /* FDCryptography.m */,
 				920799211CFE7B9A001A138A /* FDCortexM.h */,
 				920799221CFE7B9A001A138A /* FDCortexM.m */,
 				920799191CFE50DC001A138A /* FDError.h */,
@@ -206,6 +212,7 @@
 				92EA8D1D1D231B8400A30A8E /* FDSerialWireEngine.h in Headers */,
 				9249C9701D35A96F00361B99 /* FDUSBPort.h in Headers */,
 				9207991B1CFE50DC001A138A /* FDError.h in Headers */,
+				92BBBAF81D805DB700EF135F /* FDCryptography.h in Headers */,
 				92384D3B1CFF84B3005622AA /* FDFireflyFlashNRF5.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -310,6 +317,7 @@
 			files = (
 				9207990E1CFE2FD7001A138A /* FDUSBDevice.m in Sources */,
 				92384D3E1CFF84B3005622AA /* FDFireflyFlashNRF52.m in Sources */,
+				92BBBAF91D805DB700EF135F /* FDCryptography.m in Sources */,
 				9249C9711D35A96F00361B99 /* FDUSBPort.m in Sources */,
 				92581B9D1D04D34400A546CA /* FDFireflyFlashEFM32.m in Sources */,
 				92384D3C1CFF84B3005622AA /* FDFireflyFlashNRF5.m in Sources */,
@@ -436,6 +444,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -453,6 +462,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.fireflydesign.ARMSerialWireDebug;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -460,6 +470,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;

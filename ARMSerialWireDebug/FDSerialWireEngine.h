@@ -19,6 +19,4 @@
 
 @property UInt16 clockDivisor;
 
-- (BOOL)initialize:(NSError * _Nullable * _Nullable)error;
-
 @end

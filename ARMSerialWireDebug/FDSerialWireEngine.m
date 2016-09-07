@@ -8,6 +8,8 @@
 
 #import "FDSerialWireEngine.h"
 
+#import "FDUSBDevice.h"
+
 @interface FDSerialWireEngine ()
 
 @property UInt16 gpioInputs;
@@ -36,14 +38,17 @@
         _gpioResetBit = 9;
         _gpioIndicatorBit = 11;
         _gpioDetectBit = 5;
-        
     }
     return self;
 }
 
 - (BOOL)initialize:(NSError * _Nullable * _Nullable)error {
     if (![_serialEngine read:error]) {
-        FDLog(@"unexpected error: %@", error);
+        if (error != nil) {
+            FDLog(@"unexpected error: %@", *error);
+        } else {
+            FDLog(@"unexpected error");
+        }
     }
 
     [_serialEngine setLoopback:false];

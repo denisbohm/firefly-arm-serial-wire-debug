@@ -17,6 +17,7 @@ FOUNDATION_EXPORT const unsigned char ARMSerialWireDebugVersionString[];
 // In this header, you should import all the public headers of your framework using statements like #import <ARMSerialWireDebug/PublicHeader.h>
 
 #import <ARMSerialWireDebug/FDCortexM.h>
+#import <ARMSerialWireDebug/FDCryptography.h>
 #import <ARMSerialWireDebug/FDError.h>
 #import <ARMSerialWireDebug/FDExecutable.h>
 #import <ARMSerialWireDebug/FDFireflyFlash.h>

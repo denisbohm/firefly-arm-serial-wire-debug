@@ -11,6 +11,12 @@
 #import "FDLogger.h"
 #import "FDSerialWireDebug.h"
 
+@protocol FDFireflyFlashWriter <NSObject>
+
+- (BOOL)write:(uint32_t)heapAddress offset:(UInt32)offset length:(UInt32)length error:(NSError * _Nullable * _Nullable)error;
+
+@end
+
 @interface FDFireflyFlash : NSObject
 
 + (nullable FDFireflyFlash *)fireflyFlash:(nonnull NSString *)processor error:(NSError * _Nullable * _Nullable)error;
@@ -41,6 +47,7 @@
 
 - (BOOL)writePages:(uint32_t)address data:(nonnull NSData *)data error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)writePages:(uint32_t)address data:(nonnull NSData *)data erase:(BOOL)erase error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)writePages:(uint32_t)address data:(nonnull NSData *)data erase:(BOOL)erase writer:(nullable id<FDFireflyFlashWriter>)writer error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)program:(nonnull FDExecutable *)executable error:(NSError * _Nullable * _Nullable)error;
 
 - (BOOL)setDebugLock:(NSError * _Nullable * _Nullable)error;

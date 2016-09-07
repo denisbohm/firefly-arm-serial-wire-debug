@@ -10,6 +10,8 @@
 
 @protocol FDSerialWire <NSObject>
 
+- (BOOL)initialize:(NSError * _Nullable * _Nullable)error;
+
 - (void)setIndicator:(BOOL)value;
 - (void)setReset:(BOOL)value;
 - (BOOL)getDetect:(nonnull BOOL *)detect error:(NSError * _Nullable * _Nullable)error;

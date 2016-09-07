@@ -195,10 +195,15 @@
 
 - (BOOL)writePages:(uint32_t)address data:(NSData *)data error:(NSError **)error
 {
-    return [self writePages:address data:data erase:NO error:error];
+    return [self writePages:address data:data erase:NO writer:nil error:error];
 }
 
-- (BOOL)writePages:(uint32_t)address data:(NSData *)data erase:(BOOL)erase error:(NSError **)error
+- (BOOL)writePages:(uint32_t)address data:(nonnull NSData *)data erase:(BOOL)erase error:(NSError * _Nullable * _Nullable)error
+{
+    return [self writePages:address data:data erase:erase writer:nil error:error];
+}
+
+- (BOOL)writePages:(uint32_t)address data:(NSData *)data erase:(BOOL)erase writer:(id<FDFireflyFlashWriter>)writer error:(NSError **)error
 {
     FDExecutableFunction *writePagesFunction = _fireflyFlashExecutable.functions[@"write_pages"];
     uint32_t offset = 0;
@@ -213,8 +218,15 @@
             length = pages * _pageSize;
         }
         NSData *subdata = [data subdataWithRange:NSMakeRange(offset, length)];
-        if (![_serialWireDebug writeMemory:_cortexM.heapRange.location data:subdata error:error]) {
-            return NO;
+        if (writer == nil) {
+            if (![_serialWireDebug writeMemory:_cortexM.heapRange.location data:subdata error:error]) {
+                return NO;
+            }
+        } else {
+            uint32_t heapAddress = _cortexM.heapRange.location;
+            if (![writer write:heapAddress offset:offset length:length error:error]) {
+                return NO;
+            }
         }
         if (![self feedWatchdog:error]) {
             return NO;
