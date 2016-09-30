@@ -112,14 +112,44 @@ typedef NS_ENUM(NSInteger, FDSerialWireDebugDirection) {
     FDSerialWireDebugDirectionRead,
 };
 
-@protocol FDSerialWireDebugTransfer
+typedef NS_ENUM(NSInteger, FDSerialWireDebugTransferType) {
+    FDSerialWireDebugTransferTypeReadRegister,
+    FDSerialWireDebugTransferTypeWriteRegister,
+    FDSerialWireDebugTransferTypeReadMemory,
+    FDSerialWireDebugTransferTypeWriteMemory,
+};
+
+@interface FDSerialWireDebugTransfer : NSObject
+
++ (nonnull FDSerialWireDebugTransfer *)readRegister:(uint16_t)registerID;
++ (nonnull FDSerialWireDebugTransfer *)writeRegister:(uint16_t)registerID value:(uint32_t)value;
++ (nonnull FDSerialWireDebugTransfer *)readMemory:(uint32_t)address length:(uint32_t)length;
++ (nonnull FDSerialWireDebugTransfer *)writeMemory:(uint32_t)address data:(nonnull NSData *)data;
++ (nonnull FDSerialWireDebugTransfer *)writeMemory:(uint32_t)address value:(uint32_t)value;
+
+@property FDSerialWireDebugTransferType type;
+
+// register read/write
+@property uint16_t registerID;
+@property uint32_t value;
+
+// memory read/write
+@property uint32_t address;
+@property (nullable) NSData *data;
+@property uint32_t length;
+
+@end
+
+@protocol FDSerialWireDebugTransport
 
 - (BOOL)writeMemory:(UInt32)address data:(nonnull NSData *)data error:(NSError * _Nullable * _Nullable)error;
 - (nullable NSData *)readMemory:(UInt32)address length:(UInt32)length error:(NSError * _Nullable * _Nullable)error;
 
+- (BOOL)transfer:(nonnull NSArray<FDSerialWireDebugTransfer *> *)transfers error:(NSError * _Nullable * _Nullable)error;
+
 @end
 
-@interface FDSerialWireDebug : NSObject <FDSerialWireDebugTransfer>
+@interface FDSerialWireDebug : NSObject <FDSerialWireDebugTransport>
 
 @property (nullable) id<FDSerialWire> serialWire;
 @property (nonnull) FDLogger *logger;
@@ -191,6 +221,8 @@ typedef NS_ENUM(NSInteger, FDSerialWireDebugDirection) {
 - (BOOL)setBreakpoint:(uint32_t)n address:(uint32_t)address error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)disableBreakpoint:(uint32_t)n error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)disableAllBreakpoints:(NSError * _Nullable * _Nullable)error;
+
+- (BOOL)transfer:(nonnull NSArray<FDSerialWireDebugTransfer *> *)transfers error:(NSError * _Nullable * _Nullable)error;
 
 + (nonnull NSString *)debugPortIDCodeDescription:(uint32_t)debugPortIDCode;
 + (nonnull NSString *)cpuIDDescription:(uint32_t)cpuID;

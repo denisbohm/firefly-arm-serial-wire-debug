@@ -11,6 +11,47 @@
 #import "FDSerialEngine.h"
 #import "FDSerialWireDebug.h"
 
+@implementation FDSerialWireDebugTransfer
+
++ (nonnull FDSerialWireDebugTransfer *)readRegister:(uint16_t)registerID {
+    FDSerialWireDebugTransfer *transfer = [[FDSerialWireDebugTransfer alloc] init];
+    transfer.type = FDSerialWireDebugTransferTypeReadRegister;
+    transfer.registerID = registerID;
+    return transfer;
+}
+
++ (nonnull FDSerialWireDebugTransfer *)writeRegister:(uint16_t)registerID value:(uint32_t)value {
+    FDSerialWireDebugTransfer *transfer = [[FDSerialWireDebugTransfer alloc] init];
+    transfer.type = FDSerialWireDebugTransferTypeWriteRegister;
+    transfer.registerID = registerID;
+    transfer.value = value;
+    return transfer;
+}
+
++ (nonnull FDSerialWireDebugTransfer *)readMemory:(uint32_t)address length:(uint32_t)length {
+    FDSerialWireDebugTransfer *transfer = [[FDSerialWireDebugTransfer alloc] init];
+    transfer.type = FDSerialWireDebugTransferTypeReadMemory;
+    transfer.address = address;
+    transfer.length = length;
+    return transfer;
+}
+
++ (nonnull FDSerialWireDebugTransfer *)writeMemory:(uint32_t)address data:(nonnull NSData *)data {
+    FDSerialWireDebugTransfer *transfer = [[FDSerialWireDebugTransfer alloc] init];
+    transfer.type = FDSerialWireDebugTransferTypeWriteMemory;
+    transfer.address = address;
+    transfer.data = data;
+    return transfer;
+}
+
++ (nonnull FDSerialWireDebugTransfer *)writeMemory:(uint32_t)address value:(uint32_t)value {
+    uint8_t bytes[] = {value, value >> 8, value >> 16, value >> 24};
+    NSData *data = [NSData dataWithBytes:bytes length:sizeof(bytes)];
+    return [FDSerialWireDebugTransfer writeMemory:address data:data];
+}
+
+@end
+
 @interface FDSerialWireDebug ()
 
 @property NSUInteger ackWaitRetryCount;
@@ -568,9 +609,9 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
 
 - (BOOL)writeMemoryTransfer:(UInt32)address data:(NSData *)data error:(NSError **)error
 {
-    if ([_serialWire conformsToProtocol:@protocol(FDSerialWireDebugTransfer)]) {
-        id<FDSerialWireDebugTransfer> transfer = (id<FDSerialWireDebugTransfer>)_serialWire;
-        return [transfer writeMemory:address data:data error:error];
+    if ([_serialWire conformsToProtocol:@protocol(FDSerialWireDebugTransport)]) {
+        id<FDSerialWireDebugTransport> transport = (id<FDSerialWireDebugTransport>)_serialWire;
+        return [transport writeMemory:address data:data error:error];
     }
 
     if (![self beforeMemoryTransfer:address length:data.length error:error]) {
@@ -589,9 +630,9 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
 
 - (NSData *)readMemoryTransfer:(UInt32)address length:(UInt32)length error:(NSError **)error
 {
-    if ([_serialWire conformsToProtocol:@protocol(FDSerialWireDebugTransfer)]) {
-        id<FDSerialWireDebugTransfer> transfer = (id<FDSerialWireDebugTransfer>)_serialWire;
-        return [transfer readMemory:address length:length error:error];
+    if ([_serialWire conformsToProtocol:@protocol(FDSerialWireDebugTransport)]) {
+        id<FDSerialWireDebugTransport> transport = (id<FDSerialWireDebugTransport>)_serialWire;
+        return [transport readMemory:address length:length error:error];
     }
 
     if (![self beforeMemoryTransfer:address length:length error:error]) {
@@ -1061,6 +1102,44 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
     }
     
     return [self checkDebugPortStatus:error];
+}
+
+- (BOOL)transfer:(NSArray<FDSerialWireDebugTransfer *> *)transfers error:(NSError **)error {
+    if ([_serialWire conformsToProtocol:@protocol(FDSerialWireDebugTransport)]) {
+        id<FDSerialWireDebugTransport> transport = (id<FDSerialWireDebugTransport>)_serialWire;
+        return [transport transfer:transfers error:error];
+    }
+
+    for (FDSerialWireDebugTransfer *transfer in transfers) {
+        switch (transfer.type) {
+            case FDSerialWireDebugTransferTypeReadRegister: {
+                uint32_t value = 0;
+                if (![self readRegister:transfer.registerID value:&value error:error]) {
+                    return NO;
+                }
+                transfer.value = value;
+            } break;
+            case FDSerialWireDebugTransferTypeWriteRegister: {
+                if (![self writeRegister:transfer.registerID value:transfer.value error:error]) {
+                    return NO;
+                }
+            } break;
+            case FDSerialWireDebugTransferTypeReadMemory: {
+                transfer.data = [self readMemory:transfer.address length:transfer.length error:error];
+                if (transfer.data == nil) {
+                    return NO;
+                }
+            } break;
+            case FDSerialWireDebugTransferTypeWriteMemory: {
+                if (![self writeMemory:transfer.address data:transfer.data error:error]) {
+                    return NO;
+                }
+            } break;
+            default:
+                return FDErrorReturn(error, @{@"reason": @"unknown transfer type"});
+        }
+    }
+    return YES;
 }
 
 + (NSString *)debugPortIDCodeDescription:(uint32_t)debugPortIDCode

@@ -90,10 +90,14 @@
     return FDErrorReturn(error, @{@"reason": @"unimplemented"});
 }
 
-// See the firefly-ice-firmware project in github for source code to generate the FireflyFlash elf files. -denis
-- (BOOL)loadFireflyFlashFirmwareIntoRAM:(NSError **)error
+- (NSString *)resource
 {
-    NSString *flashResource = [NSString stringWithFormat:@"FireflyFlash%@", _processor];
+    return [NSString stringWithFormat:@"FireflyFlash%@", _processor];
+}
+
+- (FDExecutable *)readFireflyFlashFirmware:(NSError **)error
+{
+    NSString *flashResource = [self resource];
     NSString *path = [NSString stringWithFormat:@"%@/THUMB RAM Debug/%@.elf", _directory, flashResource];
     if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
         path = [[NSBundle mainBundle] pathForResource:flashResource ofType:@"elf"];
@@ -105,11 +109,8 @@
     if (![fireflyFlashExecutable load:path error:error]) {
         return NO;
     }
-    fireflyFlashExecutable.sections = [fireflyFlashExecutable combineAllSectionsType:FDExecutableSectionTypeProgram address:_ramAddress length:_ramSize pageSize:4];
 
-    if (![self.serialWireDebug reset:error]) {
-        return NO;
-    }
+    fireflyFlashExecutable.sections = [fireflyFlashExecutable combineAllSectionsType:FDExecutableSectionTypeProgram address:_ramAddress length:_ramSize pageSize:4];
 
     for (FDExecutableSection *section in fireflyFlashExecutable.sections) {
         switch (section.type) {
@@ -121,6 +122,32 @@
                 uint32_t end = section.address + (uint32_t)section.data.length;
                 if (end > _fireflyFlashProgramEnd) {
                     _fireflyFlashProgramEnd = end;
+                }
+            } break;
+        }
+    }
+
+    return fireflyFlashExecutable;
+}
+
+// See the firefly-ice-firmware project in github for source code to generate the FireflyFlash elf files. -denis
+- (BOOL)loadFireflyFlashFirmwareIntoRAM:(NSError **)error
+{
+    FDExecutable *fireflyFlashExecutable = [self readFireflyFlashFirmware:error];
+    if (fireflyFlashExecutable == nil) {
+        return NO;
+    }
+
+    if (![self.serialWireDebug reset:error]) {
+        return NO;
+    }
+
+    for (FDExecutableSection *section in fireflyFlashExecutable.sections) {
+        switch (section.type) {
+            case FDExecutableSectionTypeData:
+            case FDExecutableSectionTypeProgram: {
+                if (![_serialWireDebug writeMemory:section.address data:section.data error:error]) {
+                    return NO;
                 }
             } break;
         }
@@ -227,6 +254,15 @@
             if (![writer write:heapAddress offset:offset length:length error:error]) {
                 return NO;
             }
+/*
+            NSData *verifyData = [_serialWireDebug readMemory:_cortexM.heapRange.location length:length error:error];
+            if (verifyData == nil) {
+                return NO;
+            }
+            if (![verifyData isEqualToData:verifyData]) {
+                NSLog(@"Dang!");
+            }
+*/
         }
         if (![self feedWatchdog:error]) {
             return NO;

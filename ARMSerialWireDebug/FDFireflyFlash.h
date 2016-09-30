@@ -53,8 +53,10 @@
 - (BOOL)setDebugLock:(NSError * _Nullable * _Nullable)error;
 - (BOOL)getDebugLock:(nonnull BOOL *)debugLock error:(NSError * _Nullable * _Nullable)error;
 
-// for use by subclasses
+- (BOOL)setupProcessor:(NSError * _Nullable * _Nullable)error;
 - (BOOL)setupCortexM:(NSError * _Nullable * _Nullable)error;
+- (nonnull NSString *)resource;
+- (nullable FDExecutable *)readFireflyFlashFirmware:(NSError * _Nullable * _Nullable)error;
 - (BOOL)loadFireflyFlashFirmwareIntoRAM:(NSError * _Nullable * _Nullable)error;
 
 @end

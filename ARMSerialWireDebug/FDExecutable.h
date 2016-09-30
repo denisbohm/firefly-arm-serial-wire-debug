@@ -39,7 +39,7 @@ typedef NS_ENUM(NSInteger, FDExecutableSectionType) {
 
 - (BOOL)load:(nonnull NSString *)filename error:(NSError * _Nullable * _Nullable)error;
 
-// combine sections withing the given address range into sections that
+// combine sections within the given address range into sections that
 // start and stop on page boundaries
 - (nonnull NSArray<FDExecutableSection *> *)combineSectionsType:(FDExecutableSectionType)type
                                                         address:(uint32_t)address
