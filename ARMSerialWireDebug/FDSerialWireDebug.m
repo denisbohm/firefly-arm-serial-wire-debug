@@ -611,7 +611,7 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
 {
     if ([_serialWire conformsToProtocol:@protocol(FDSerialWireDebugTransport)]) {
         id<FDSerialWireDebugTransport> transport = (id<FDSerialWireDebugTransport>)_serialWire;
-        return [transport writeMemory:address data:data error:error];
+        return [transport serialWireDebugTransportWriteMemory:address data:data error:error];
     }
 
     if (![self beforeMemoryTransfer:address length:data.length error:error]) {
@@ -632,7 +632,7 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
 {
     if ([_serialWire conformsToProtocol:@protocol(FDSerialWireDebugTransport)]) {
         id<FDSerialWireDebugTransport> transport = (id<FDSerialWireDebugTransport>)_serialWire;
-        return [transport readMemory:address length:length error:error];
+        return [transport serialWireDebugTransportReadMemory:address length:length error:error];
     }
 
     if (![self beforeMemoryTransfer:address length:length error:error]) {
@@ -1107,7 +1107,7 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
 - (BOOL)transfer:(NSArray<FDSerialWireDebugTransfer *> *)transfers error:(NSError **)error {
     if ([_serialWire conformsToProtocol:@protocol(FDSerialWireDebugTransport)]) {
         id<FDSerialWireDebugTransport> transport = (id<FDSerialWireDebugTransport>)_serialWire;
-        return [transport transfer:transfers error:error];
+        return [transport serialWireDebugTransportTransfer:transfers error:error];
     }
 
     for (FDSerialWireDebugTransfer *transfer in transfers) {

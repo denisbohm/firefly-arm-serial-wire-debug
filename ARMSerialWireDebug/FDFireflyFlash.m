@@ -126,6 +126,8 @@
             } break;
         }
     }
+    
+    _fireflyFlashExecutable = fireflyFlashExecutable;
 
     return fireflyFlashExecutable;
 }
@@ -153,7 +155,6 @@
         }
     }
 
-    _fireflyFlashExecutable = fireflyFlashExecutable;
     return YES;
 }
 
@@ -250,20 +251,11 @@
                 return NO;
             }
         } else {
-            uint32_t heapAddress = _cortexM.heapRange.location;
-            if (![writer write:heapAddress offset:offset length:length error:error]) {
+            if (![writer write:_cortexM.heapRange.location offset:offset data:subdata error:error]) {
                 return NO;
             }
-/*
-            NSData *verifyData = [_serialWireDebug readMemory:_cortexM.heapRange.location length:length error:error];
-            if (verifyData == nil) {
-                return NO;
-            }
-            if (![verifyData isEqualToData:verifyData]) {
-                NSLog(@"Dang!");
-            }
-*/
         }
+
         if (![self feedWatchdog:error]) {
             return NO;
         }
@@ -271,6 +263,7 @@
         if (![_cortexM run:writePagesFunction.address r0:address r1:_cortexM.heapRange.location r2:pages r3:erase ? 1 : 0 timeout:5 resultR0:&result error:error]) {
             return NO;
         }
+
         offset += length;
         address += length;
     }

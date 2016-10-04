@@ -13,7 +13,7 @@
 
 @protocol FDFireflyFlashWriter <NSObject>
 
-- (BOOL)write:(uint32_t)heapAddress offset:(UInt32)offset length:(UInt32)length error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)write:(uint32_t)heapAddress offset:(UInt32)offset data:(nonnull NSData *)data error:(NSError * _Nullable * _Nullable)error;
 
 @end
 

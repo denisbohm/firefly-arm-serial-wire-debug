@@ -142,14 +142,14 @@ typedef NS_ENUM(NSInteger, FDSerialWireDebugTransferType) {
 
 @protocol FDSerialWireDebugTransport
 
-- (BOOL)writeMemory:(UInt32)address data:(nonnull NSData *)data error:(NSError * _Nullable * _Nullable)error;
-- (nullable NSData *)readMemory:(UInt32)address length:(UInt32)length error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)serialWireDebugTransportWriteMemory:(UInt32)address data:(nonnull NSData *)data error:(NSError * _Nullable * _Nullable)error;
+- (nullable NSData *)serialWireDebugTransportReadMemory:(UInt32)address length:(UInt32)length error:(NSError * _Nullable * _Nullable)error;
 
-- (BOOL)transfer:(nonnull NSArray<FDSerialWireDebugTransfer *> *)transfers error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)serialWireDebugTransportTransfer:(nonnull NSArray<FDSerialWireDebugTransfer *> *)transfers error:(NSError * _Nullable * _Nullable)error;
 
 @end
 
-@interface FDSerialWireDebug : NSObject <FDSerialWireDebugTransport>
+@interface FDSerialWireDebug : NSObject
 
 @property (nullable) id<FDSerialWire> serialWire;
 @property (nonnull) FDLogger *logger;
