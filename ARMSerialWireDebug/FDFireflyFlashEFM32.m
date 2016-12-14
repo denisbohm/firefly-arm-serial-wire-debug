@@ -319,13 +319,13 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
     return [self flash:EFM32_LB_DLW data:[NSData dataWithBytes:bytes length:4] error:error];
 }
 
-- (BOOL)debugLock:(BOOL *)locked error:(NSError **)error
+- (BOOL)getDebugLock:(BOOL *)debugLock error:(NSError **)error
 {
     uint32_t value;
     if (![self.serialWireDebug readMemory:EFM32_LB_DLW value:&value error:error]) {
         return NO;
     }
-    *locked = (value & 0x0000000f) != 0x0000000f;
+    *debugLock = (value & 0x0000000f) != 0x0000000f;
     return YES;
 }
 
