@@ -52,7 +52,7 @@
     NSLog(@"run timeout: dhcsr=0x%08x demcr=0x%08x pc=0x%08x lr=0x%08x", dhcsr, demcr, pc, lr);
 }
 
-- (BOOL)start:(UInt32)pc r0:(uint32_t)r0 r1:(uint32_t)r1 r2:(uint32_t)r2 r3:(uint32_t)r3 error:(NSError **)error
+- (BOOL)setupCall:(UInt32)pc r0:(uint32_t)r0 r1:(uint32_t)r1 r2:(uint32_t)r2 r3:(uint32_t)r3 run:(BOOL)run error:(NSError **)error
 {
     // Note: We can only use hardware breakpoints if code is in FLASH.
     // So, instead, we set the link register to a halt function, which then gets called on return. -denis
@@ -75,11 +75,19 @@
     uint32_t lr = _breakLocation | 0x00000001;
     [transfers addObject:[FDSerialWireDebugTransfer writeRegister:CORTEX_M_REGISTER_LR value:lr]];
     dhcsr = SWD_DHCSR_DBGKEY | SWD_DHCSR_CTRL_DEBUGEN;
+    if (!run) {
+        dhcsr |= SWD_DHCSR_CTRL_HALT;
+    }
     if (_serialWireDebug.maskInterrupts) {
         dhcsr |= SWD_DHCSR_CTRL_MASKINTS;
     }
     [transfers addObject:[FDSerialWireDebugTransfer writeMemory:SWD_MEMORY_DHCSR value:dhcsr]]; // run
     return [_serialWireDebug transfer:transfers error:error];
+}
+
+- (BOOL)start:(UInt32)pc r0:(uint32_t)r0 r1:(uint32_t)r1 r2:(uint32_t)r2 r3:(uint32_t)r3 error:(NSError **)error
+{
+    return [self setupCall:pc r0:r0 r1:r1 r2:r2 r3:r3 run:YES error:error];
 }
 
 - (BOOL)waitForHalt:(NSTimeInterval)timeout resultR0:(UInt32 *)resultR0 error:(NSError **)error
