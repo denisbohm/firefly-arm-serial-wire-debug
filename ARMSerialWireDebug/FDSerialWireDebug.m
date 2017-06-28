@@ -239,7 +239,9 @@ typedef NS_ENUM(NSInteger, SWDAck) {
 
 - (BOOL)readPort:(FDSerialWireDebugPort)port registerOffset:(UInt8)registerOffset value:(UInt32 *)value error:(NSError **)error
 {
-//    NSLog(@"read  %@ %02x", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset);
+    if (self.log) {
+        NSLog(@"read  %@ %02x", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset);
+    }
     SWDAck ack = SWDAckOK;
     NSError *deepError;
     UInt8 request = [self encodeRequestPort:port direction:FDSerialWireDebugDirectionRead address:registerOffset];
@@ -260,7 +262,9 @@ typedef NS_ENUM(NSInteger, SWDAck) {
                 }
                 [self turnToWriteAndSkip];
             }
-//            NSLog(@"read  %@ %02x = %08x", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset, value);
+            if (self.log) {
+                NSLog(@"read  %@ %02x = %08x", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset, *value);
+            }
             return YES;
         }
         if (!_overrunDetectionEnabled) {
@@ -282,7 +286,9 @@ typedef NS_ENUM(NSInteger, SWDAck) {
 
 - (BOOL)writePort:(FDSerialWireDebugPort)port registerOffset:(UInt8)registerOffset value:(UInt32)value error:(NSError **)error
 {
-//    NSLog(@"write %@ %02x = %08x", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset, value);
+    if (self.log) {
+        NSLog(@"write %@ %02x = %08x", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset, value);
+    }
     SWDAck ack = SWDAckOK;
     NSError *deepError;
     UInt8 request = [self encodeRequestPort:port direction:FDSerialWireDebugDirectionWrite address:registerOffset];
@@ -298,7 +304,9 @@ typedef NS_ENUM(NSInteger, SWDAck) {
             if (!_overrunDetectionEnabled) {
                 [self writeUInt32:value];
             }
-//            NSLog(@"write %@ %02x = %08x done", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset, value);
+            if (self.log) {
+                NSLog(@"write %@ %02x = %08x done", port == FDSerialWireDebugPortDebug ? @"dp" : @"ap", registerOffset, value);
+            }
             return YES;
         }
         if (ack != SWDAckWait) {
@@ -438,7 +446,9 @@ typedef NS_ENUM(NSInteger, SWDAck) {
 
 - (BOOL)readAccessPort:(UInt8)accessPort registerOffset:(UInt8)registerOffset value:(UInt32 *)value error:(NSError **)error
 {
-//    NSLog(@"read access port %02x", registerOffset);
+    if (self.log) {
+        NSLog(@"read access port %02x", registerOffset);
+    }
     if (![self accessPortBankSelect:accessPort registerOffset:registerOffset error:error]) {
         return NO;
     }
@@ -449,7 +459,9 @@ typedef NS_ENUM(NSInteger, SWDAck) {
     if (![self readPort:FDSerialWireDebugPortDebug registerOffset:SWD_DP_RDBUFF value:value error:error]) {
         return NO;
     }
-//    NSLog(@"read access port %02x = %08x", registerOffset, value);
+    if (self.log) {
+        NSLog(@"read access port %02x = %08x", registerOffset, *value);
+    }
     return YES;
 }
 
@@ -460,7 +472,9 @@ typedef NS_ENUM(NSInteger, SWDAck) {
 
 - (BOOL)writeAccessPort:(UInt8)accessPort registerOffset:(UInt8)registerOffset value:(UInt32)value error:(NSError **)error
 {
-//    NSLog(@"write access port %02x = %08x", registerOffset, value);
+    if (self.log) {
+        NSLog(@"write access port %02x = %08x", registerOffset, value);
+    }
     if (![self accessPortBankSelect:accessPort registerOffset:registerOffset error:error]) {
         return NO;
     }
@@ -468,7 +482,9 @@ typedef NS_ENUM(NSInteger, SWDAck) {
         return NO;
     }
     [self flush];
-//    NSLog(@"write access port %02x = %08x done", registerOffset, value);
+    if (self.log) {
+        NSLog(@"write access port %02x = %08x done", registerOffset, value);
+    }
     return YES;
 }
 
@@ -496,19 +512,29 @@ typedef NS_ENUM(NSInteger, SWDAck) {
 
 - (BOOL)readMemory:(UInt32)address value:(UInt32 *)value error:(NSError **)error
 {
-//    NSLog(@"read memory %08x", address);
+    if (self.log) {
+        NSLog(@"read memory %08x", address);
+    }
     BOOL (^block)(NSError **) = ^(NSError **error) {
         if (![self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AP_TAR value:address error:error]) {
             return NO;
         }
         return [self readAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AP_DRW value:value error:error];
     };
-    return [self recoverAndRetry:block error:error];
+    if (![self recoverAndRetry:block error:error]) {
+        return NO;
+    }
+    if (self.log) {
+        NSLog(@"read memory %08x = %08x done", address, *value);
+    }
+    return YES;
 }
 
 - (BOOL)writeMemory:(UInt32)address value:(UInt32)value error:(NSError **)error
 {
-//    NSLog(@"write memory %08x = %08x", address, value);
+    if (self.log) {
+        NSLog(@"write memory %08x = %08x", address, value);
+    }
     BOOL (^block)(NSError **) = ^(NSError **error) {
         if (![self writeAccessPort:SWD_DP_SELECT_APSEL_APB_AP registerOffset:SWD_AP_TAR value:address error:error]) {
             return NO;
@@ -518,7 +544,9 @@ typedef NS_ENUM(NSInteger, SWDAck) {
     if (![self recoverAndRetry:block error:error]) {
         return NO;
     }
-//    NSLog(@"write memory %08x = %08x done", address, value);
+    if (self.log) {
+        NSLog(@"write memory %08x = %08x done", address, value);
+    }
     return YES;
 }
 

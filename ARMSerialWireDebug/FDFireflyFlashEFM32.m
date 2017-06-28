@@ -111,6 +111,7 @@
 #define MSC_ADDRB     (MSC + 0x010)
 #define MSC_WDATA     (MSC + 0x018)
 #define MSC_STATUS    (MSC + 0x01c)
+#define MSC_LOCK      (MSC + 0x03c)
 #define MSC_MASSLOCK  (MSC + 0x054)
 
 #define MSC_WRITECTRL_WREN BIT(0)
@@ -125,10 +126,14 @@
 #define MSC_WRITECMD_ERASEMAIN1 BIT(9)
 #define MSC_WRITECMD_CLEARWDATA BIT(12)
 
-#define MSC_STATUS_BUSY       BIT(0)
-#define MSC_STATUS_LOCKED     BIT(1)
-#define MSC_STATUS_INVADDR    BIT(2)
-#define MSC_STATUS_WDATAREADY BIT(3)
+#define MSC_STATUS_BUSY         BIT(0)
+#define MSC_STATUS_LOCKED       BIT(1)
+#define MSC_STATUS_INVADDR      BIT(2)
+#define MSC_STATUS_WDATAREADY   BIT(3)
+#define MSC_STATUS_WORDTIMEOUT  BIT(4)
+#define MSC_STATUS_ERASEABORTED BIT(5)
+
+#define MSC_LOCK_UNLOCK_CODE 0x1B71
 
 #define MSC_MASSLOCK_UNLOCK 0x631a
 
@@ -257,6 +262,10 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
         return FDErrorReturn(error, @{@"reason": reason});
     }
 
+    if (![self.serialWireDebug writeMemory:MSC_LOCK value:MSC_LOCK_UNLOCK_CODE error:error]) {
+        return NO;
+    }
+
     BOOL fast = NO;
     if (fast) {
         if (![self.serialWireDebug accessPortBankSelect:SWD_DP_SELECT_APSEL_APB_AP registerOffset:0x00 error:error]) {
@@ -292,7 +301,17 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
             if (![self.serialWireDebug writeMemory:MSC_WRITECMD value:MSC_WRITECMD_WRITEONCE error:error]) {
                 return NO;
             }
-            return [self memorySystemControllerStatusWait:MSC_STATUS_BUSY value:MSC_STATUS_BUSY error:error];
+            if (![self memorySystemControllerStatusWait:MSC_STATUS_BUSY value:MSC_STATUS_BUSY error:error]) {
+                return NO;
+            }
+            UInt32 status;
+            if (![self.serialWireDebug readMemory:MSC_STATUS value:&status error:error]) {
+                return NO;
+            }
+            if (status & (MSC_STATUS_LOCKED | MSC_STATUS_WORDTIMEOUT | MSC_STATUS_ERASEABORTED)) {
+                NSString *reason = [NSString stringWithFormat:@"BAD MSC STATUS: %08lx", (unsigned long int)status];
+                return FDErrorReturn(error, @{@"reason": reason});
+            }
         }
     }
 
@@ -302,6 +321,11 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
             return NO;
         }
     }
+
+    if (![self.serialWireDebug writeMemory:MSC_LOCK value:0 error:error]) {
+        return NO;
+    }
+
     return YES;
 }
 

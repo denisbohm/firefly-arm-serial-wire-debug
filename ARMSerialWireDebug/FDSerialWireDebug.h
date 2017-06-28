@@ -153,6 +153,7 @@ typedef NS_ENUM(NSInteger, FDSerialWireDebugTransferType) {
 
 @property (nullable) id<FDSerialWire> serialWire;
 @property (nonnull) FDLogger *logger;
+@property BOOL log;
 
 @property BOOL maskInterrupts;
 
