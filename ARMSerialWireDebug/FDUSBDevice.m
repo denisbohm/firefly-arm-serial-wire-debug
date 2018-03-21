@@ -269,7 +269,7 @@ void WritePipeAsyncCallback(void *refCon, IOReturn result, void *arg0)
 - (NSData *)readPipe:(UInt8)pipe length:(UInt32)length error:(NSError **)error
 {
     if (![self checkPreconditions:error]) {
-        return NO;
+        return nil;
     }
     NSMutableData *data = [NSMutableData dataWithLength:length];
     UInt32 readLength = length;

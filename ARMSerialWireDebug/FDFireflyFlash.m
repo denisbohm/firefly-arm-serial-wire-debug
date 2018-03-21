@@ -107,7 +107,7 @@
     }
     FDExecutable *fireflyFlashExecutable = [[FDExecutable alloc] init];
     if (![fireflyFlashExecutable load:path error:error]) {
-        return NO;
+        return nil;
     }
 
     fireflyFlashExecutable.sections = [fireflyFlashExecutable combineAllSectionsType:FDExecutableSectionTypeProgram address:_ramAddress length:_ramSize pageSize:4];
@@ -117,7 +117,7 @@
             case FDExecutableSectionTypeData:
             case FDExecutableSectionTypeProgram: {
                 if (![_serialWireDebug writeMemory:section.address data:section.data error:error]) {
-                    return NO;
+                    return nil;
                 }
                 uint32_t end = section.address + (uint32_t)section.data.length;
                 if (end > _fireflyFlashProgramEnd) {
