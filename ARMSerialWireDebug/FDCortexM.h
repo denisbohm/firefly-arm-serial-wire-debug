@@ -99,4 +99,6 @@
 - (BOOL)run:(UInt32)pc r0:(uint32_t)r0 timeout:(NSTimeInterval)timeout error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)run:(UInt32)pc timeout:(NSTimeInterval)timeout error:(NSError * _Nullable * _Nullable)error;
 
+- (void)logDebugInfo;
+
 @end

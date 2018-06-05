@@ -41,6 +41,10 @@
     if (![_serialWireDebug readMemory:0xE000EDFC value:&demcr error:nil]) {
         return;
     }
+    uint32_t r0;
+    if (![_serialWireDebug readRegister:CORTEX_M_REGISTER_R0 value:&r0 error:nil]) {
+        return;
+    }
     uint32_t pc;
     if (![_serialWireDebug readRegister:CORTEX_M_REGISTER_PC value:&pc error:nil]) {
         return;
@@ -49,7 +53,11 @@
     if (![_serialWireDebug readRegister:CORTEX_M_REGISTER_LR value:&lr error:nil]) {
         return;
     }
-    NSLog(@"run timeout: dhcsr=0x%08x demcr=0x%08x pc=0x%08x lr=0x%08x", dhcsr, demcr, pc, lr);
+    uint32_t sp;
+    if (![_serialWireDebug readRegister:CORTEX_M_REGISTER_SP value:&sp error:nil]) {
+        return;
+    }
+    NSLog(@"run timeout: r0=0x%08x pc=0x%08x lr=0x%08x sp=0x%08x dhcsr=0x%08x demcr=0x%08x", r0, pc, lr, sp, dhcsr, demcr);
 }
 
 - (BOOL)setupCall:(UInt32)pc r0:(uint32_t)r0 r1:(uint32_t)r1 r2:(uint32_t)r2 r3:(uint32_t)r3 run:(BOOL)run error:(NSError **)error

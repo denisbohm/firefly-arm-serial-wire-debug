@@ -21,6 +21,7 @@ FOUNDATION_EXPORT const unsigned char ARMSerialWireDebugVersionString[];
 #import <ARMSerialWireDebug/FDError.h>
 #import <ARMSerialWireDebug/FDExecutable.h>
 #import <ARMSerialWireDebug/FDFireflyFlash.h>
+#import <ARMSerialWireDebug/FDFireflyFlashAPOLLO.h>
 #import <ARMSerialWireDebug/FDFireflyFlashEFM32.h>
 #import <ARMSerialWireDebug/FDFireflyFlashNRF5.h>
 #import <ARMSerialWireDebug/FDFireflyFlashNRF52.h>

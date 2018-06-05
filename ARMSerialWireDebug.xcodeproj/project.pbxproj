@@ -40,6 +40,9 @@
 		92581B9D1D04D34400A546CA /* FDFireflyFlashEFM32.m in Sources */ = {isa = PBXBuildFile; fileRef = 92581B9B1D04D34400A546CA /* FDFireflyFlashEFM32.m */; };
 		925F9F8A1CFF3EE200D1C1FE /* FDExecutable.h in Headers */ = {isa = PBXBuildFile; fileRef = 925F9F881CFF3EE200D1C1FE /* FDExecutable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		925F9F8B1CFF3EE200D1C1FE /* FDExecutable.m in Sources */ = {isa = PBXBuildFile; fileRef = 925F9F891CFF3EE200D1C1FE /* FDExecutable.m */; };
+		92721C5E20BDF78A00A5645D /* FireflyFlashAPOLLO.elf in Resources */ = {isa = PBXBuildFile; fileRef = 92721C5D20BDF78A00A5645D /* FireflyFlashAPOLLO.elf */; };
+		92721C6120BDF7C100A5645D /* FDFireflyFlashAPOLLO.h in Headers */ = {isa = PBXBuildFile; fileRef = 92721C5F20BDF7C100A5645D /* FDFireflyFlashAPOLLO.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		92721C6220BDF7C100A5645D /* FDFireflyFlashAPOLLO.m in Sources */ = {isa = PBXBuildFile; fileRef = 92721C6020BDF7C100A5645D /* FDFireflyFlashAPOLLO.m */; };
 		92BBBAF81D805DB700EF135F /* FDCryptography.h in Headers */ = {isa = PBXBuildFile; fileRef = 92BBBAF61D805DB700EF135F /* FDCryptography.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		92BBBAF91D805DB700EF135F /* FDCryptography.m in Sources */ = {isa = PBXBuildFile; fileRef = 92BBBAF71D805DB700EF135F /* FDCryptography.m */; };
 		92EA8D191D231B3F00A30A8E /* FDSerialWire.h in Headers */ = {isa = PBXBuildFile; fileRef = 92EA8D171D231B3F00A30A8E /* FDSerialWire.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -94,6 +97,9 @@
 		92581B9B1D04D34400A546CA /* FDFireflyFlashEFM32.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDFireflyFlashEFM32.m; sourceTree = "<group>"; };
 		925F9F881CFF3EE200D1C1FE /* FDExecutable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDExecutable.h; sourceTree = "<group>"; };
 		925F9F891CFF3EE200D1C1FE /* FDExecutable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDExecutable.m; sourceTree = "<group>"; };
+		92721C5D20BDF78A00A5645D /* FireflyFlashAPOLLO.elf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FireflyFlashAPOLLO.elf; sourceTree = "<group>"; };
+		92721C5F20BDF7C100A5645D /* FDFireflyFlashAPOLLO.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FDFireflyFlashAPOLLO.h; sourceTree = "<group>"; };
+		92721C6020BDF7C100A5645D /* FDFireflyFlashAPOLLO.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FDFireflyFlashAPOLLO.m; sourceTree = "<group>"; };
 		92BBBAF61D805DB700EF135F /* FDCryptography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDCryptography.h; sourceTree = "<group>"; };
 		92BBBAF71D805DB700EF135F /* FDCryptography.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDCryptography.m; sourceTree = "<group>"; };
 		92EA8D171D231B3F00A30A8E /* FDSerialWire.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDSerialWire.h; sourceTree = "<group>"; };
@@ -146,24 +152,24 @@
 			isa = PBXGroup;
 			children = (
 				92008A751CFE2E3A00AFDF20 /* ARMSerialWireDebug.h */,
-				92BBBAF61D805DB700EF135F /* FDCryptography.h */,
-				92BBBAF71D805DB700EF135F /* FDCryptography.m */,
 				920799211CFE7B9A001A138A /* FDCortexM.h */,
 				920799221CFE7B9A001A138A /* FDCortexM.m */,
+				92BBBAF61D805DB700EF135F /* FDCryptography.h */,
+				92BBBAF71D805DB700EF135F /* FDCryptography.m */,
 				920799191CFE50DC001A138A /* FDError.h */,
 				9207991A1CFE50DC001A138A /* FDError.m */,
 				925F9F881CFF3EE200D1C1FE /* FDExecutable.h */,
 				925F9F891CFF3EE200D1C1FE /* FDExecutable.m */,
 				92384D321CFF84B3005622AA /* FDFireflyFlash.h */,
 				92384D331CFF84B3005622AA /* FDFireflyFlash.m */,
+				92721C5F20BDF7C100A5645D /* FDFireflyFlashAPOLLO.h */,
+				92721C6020BDF7C100A5645D /* FDFireflyFlashAPOLLO.m */,
 				92581B9A1D04D34400A546CA /* FDFireflyFlashEFM32.h */,
 				92581B9B1D04D34400A546CA /* FDFireflyFlashEFM32.m */,
-				9250DFA71E01DCEA0032CB78 /* FireflyFlashEFM32.elf */,
 				92384D341CFF84B3005622AA /* FDFireflyFlashNRF5.h */,
 				92384D351CFF84B3005622AA /* FDFireflyFlashNRF5.m */,
 				92384D361CFF84B3005622AA /* FDFireflyFlashNRF52.h */,
 				92384D371CFF84B3005622AA /* FDFireflyFlashNRF52.m */,
-				92384D381CFF84B3005622AA /* FireflyFlashNRF52.elf */,
 				920799111CFE320C001A138A /* FDLogger.h */,
 				920799121CFE320C001A138A /* FDLogger.m */,
 				920799151CFE4E0E001A138A /* FDSerialEngine.h */,
@@ -179,6 +185,9 @@
 				9207990C1CFE2FD7001A138A /* FDUSBMonitor.m */,
 				9249C96E1D35A96F00361B99 /* FDUSBPort.h */,
 				9249C96F1D35A96F00361B99 /* FDUSBPort.m */,
+				92721C5D20BDF78A00A5645D /* FireflyFlashAPOLLO.elf */,
+				9250DFA71E01DCEA0032CB78 /* FireflyFlashEFM32.elf */,
+				92384D381CFF84B3005622AA /* FireflyFlashNRF52.elf */,
 				92008A771CFE2E3A00AFDF20 /* Info.plist */,
 			);
 			path = ARMSerialWireDebug;
@@ -216,6 +225,7 @@
 				9249C9701D35A96F00361B99 /* FDUSBPort.h in Headers */,
 				9207991B1CFE50DC001A138A /* FDError.h in Headers */,
 				92BBBAF81D805DB700EF135F /* FDCryptography.h in Headers */,
+				92721C6120BDF7C100A5645D /* FDFireflyFlashAPOLLO.h in Headers */,
 				92384D3B1CFF84B3005622AA /* FDFireflyFlashNRF5.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -301,6 +311,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9250DFA81E01DCEA0032CB78 /* FireflyFlashEFM32.elf in Resources */,
+				92721C5E20BDF78A00A5645D /* FireflyFlashAPOLLO.elf in Resources */,
 				92384D3F1CFF84B3005622AA /* FireflyFlashNRF52.elf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -320,6 +331,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9207990E1CFE2FD7001A138A /* FDUSBDevice.m in Sources */,
+				92721C6220BDF7C100A5645D /* FDFireflyFlashAPOLLO.m in Sources */,
 				92384D3E1CFF84B3005622AA /* FDFireflyFlashNRF52.m in Sources */,
 				92BBBAF91D805DB700EF135F /* FDCryptography.m in Sources */,
 				9249C9711D35A96F00361B99 /* FDUSBPort.m in Sources */,
