@@ -989,7 +989,7 @@ static UInt32 unpackLittleEndianUInt32(uint8_t *bytes) {
     if (![self readMemory:SWD_MEMORY_DHCSR value:&dhcsr error:error]) {
         return NO;
     }
-    *halted = dhcsr & SWD_DHCSR_STAT_HALT ? YES : NO;
+    *halted = (dhcsr & SWD_DHCSR_STAT_HALT) ? YES : NO;
     return YES;
 }
 
