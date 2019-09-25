@@ -581,7 +581,7 @@ static int get_array_length(Dwarf_Debug dbg, Dwarf_Die die, int *length) {
 {
     int fd;
     if ((fd = open(filename, O_RDONLY, 0)) < 0) {
-        NSString *reason = [NSString stringWithFormat:@"open \%s\" failed", filename];
+        NSString *reason = [NSString stringWithFormat:@"open \"%s\" failed", filename];
         return FDErrorReturn(error, @{@"reason": reason});
     }
     Dwarf_Handler errhand = 0;
@@ -644,7 +644,7 @@ static int get_array_length(Dwarf_Debug dbg, Dwarf_Die die, int *length) {
     }
     int fd;
     if ((fd = open(filename, O_RDONLY, 0)) < 0) {
-        NSString *reason = [NSString stringWithFormat:@"ELF Error: open \%s\" failed", filename];
+        NSString *reason = [NSString stringWithFormat:@"ELF Error: open \"%s\" failed", filename];
         return FDErrorReturn(error, @{@"reason": reason});
     }
     Elf *e;

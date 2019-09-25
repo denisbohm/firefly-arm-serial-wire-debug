@@ -12,7 +12,7 @@
 #import "FDFireflyFlash.h"
 #import "FDSerialWireDebug.h"
 
-#define FIREFLY_FLASH_STACK_LENGTH 128
+#define FIREFLY_FLASH_STACK_LENGTH 1024
 
 @interface FDFireflyFlash ()
 
@@ -104,6 +104,11 @@
         if (path == nil) {
             path = [[NSBundle bundleForClass:[self class]] pathForResource:flashResource ofType:@"elf"];
         }
+    }
+    if (path == nil) {
+        NSString *reason = [NSString stringWithFormat:@"firefly flash firmware not found: \"%@.elf\"", flashResource];
+        FDErrorReturn(error, @{@"reason": reason});
+        return nil;
     }
     FDExecutable *fireflyFlashExecutable = [[FDExecutable alloc] init];
     if (![fireflyFlashExecutable load:path error:error]) {
